@@ -48,7 +48,8 @@ Make sure you have the following installed:
 
 3. Start the Next.js development server:
     ```bash
-    npm run dev```
+    npm run dev
+    ```
     The frontend will be running at http://localhost:3000.
 
 ### Backend Setup
@@ -68,7 +69,8 @@ Make sure you have the following installed:
 
 4. Start the Backend server:
     ```bash
-    npm run dev```
+    npm run dev
+    ```
     The backend will be running at http://localhost:5000.
 
 ### Environment Variable
