@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SengarBus
 
-## Getting Started
+SengarBus is a web-based bus ticket booking platform designed to streamline the booking process for Sengar Travels. This platform provides features such as seat selection, live bus tracking, and payment integration, enabling users to easily search and book bus tickets online.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Seat Selection**: Users can choose available seats based on their preferences.
+- **Live Bus Tracking**: Users can track the real-time location of buses during their journey.
+- **Multi-Vendor Platform**: Different bus operators can list their services, providing a variety of options for users.
+- **Payment Integration**: Seamless payment gateway integration for secure transactions.
+- **Search Functionality**: Users can search for buses based on the source, destination, and travel date.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**:
+  - Next.js with TypeScript
+  - React.js
+  - CSS (for styling)
+- **Backend**:
+  - Node.js
+  - Express.js
+  - PostgreSQL (for database management)
+  - Redis (for session management)
+- **Deployment**: The application is deployed using Vercel (for frontend) and a custom backend hosted on a separate server.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Setup and Installation
 
-### Learn More
+To run the application locally, follow these steps:
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Make sure you have the following installed:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- [PostgreSQL](https://www.postgresql.org/) for database management
+- [Redis](https://redis.io/) for session management
 
-### Deploy on Vercel
+### Frontend Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/sengarbus.git
+   cd sengarbus

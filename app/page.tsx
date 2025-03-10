@@ -1,6 +1,6 @@
 "use client";
 // import * as React from "react"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -12,23 +12,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DatePickerDemo from "@/components/ui/datepicker";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("general");
-  // const [date, setDate] = React.useState<Date | undefined>(undefined)
-
-  // const setToday = () => setDate(new Date());
-
-  // const setTomorrow = () => {
-  //   const tomorrow = new Date();
-  //   tomorrow.setDate(tomorrow.getDate() + 1);
-  //   setDate(tomorrow);
-  //   console.log(tomorrow)
-  // };
-  // React.useEffect(() => {
-  //   console.log("Updated Date:", date);
-  // }, [date]);
-  
+  const router = useRouter();
+  const [source, setSource] = useState("");
+  const [destination, setDestination] = useState("");
+  const [date, setDate] = useState<Date | null>(null);
+  const [buses, setBuses] = useState<any[]>([]);
 
   const categories = [
     { id: "general", label: "General" },
@@ -37,28 +30,124 @@ export default function Home() {
     { id: "cancellation", label: "Cancellation & Refund" },
   ];
 
+  const generateSession = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/session/create", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to retrieve session");
+      }
+
+      const data = await response.json();
+      console.log("Session Response:", data);
+
+      document.cookie = `sessionId=${data.sessionID}; path=/; max-age=${
+        60 * 60
+      }; secure=$process.env.NODE_ENV === 'production'}`;
+    } catch (error) {
+      console.log("Error generating session:", error);
+    }
+  };
+
+  const getSessionIdFromCookie = (): string | null => {
+    const match = document.cookie.match(new RegExp("(^| )sessionId=([^;]+)"));
+    return match ? match[2] : null;
+  };
+
+  useEffect(() => {
+    generateSession();
+  }, []);
+  useEffect(() => {
+    if (!source || !destination || !date) return;
+
+    const formattedDate = format(date, "yyyy-MM-dd");
+    const query = { source, destination, date: formattedDate };
+
+    const fetchBuses = async () => {
+      // const sessionId = getSessionIdFromCookie();
+      try {
+        const response = await fetch("http://localhost:5000/api/booking/store", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(query),
+        });
+        if (!response.ok) throw new Error("Failed to fetch buses");
+
+        const data = await response.json();
+        console.log("Data fetched from DB:", data);
+        setBuses(data);
+        router.push(
+          `/buses?source=${encodeURIComponent(
+            source
+          )}&destination=${encodeURIComponent(destination)}&date=${date}`
+        );
+      } catch (error) {
+        console.log("Error fetching buses:", error);
+      }
+    };
+
+    fetchBuses();
+  }, [source, destination, date]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!source || !destination || !setDate) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    // const formattedDate = date ? date.toISOString().split("T")[0] : "";
+  };
+
   return (
     <main>
       <section className="md:px-6 py-2">
-        <div className="text-2xl font-semibold pb-8 md:px-0">Book your bus now...</div>
+        <div className="text-2xl font-semibold pb-8 md:px-0">
+          Book your bus now...
+        </div>
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
           <div className="flex flex-col gap-4">
             <div>
               <div className="mb-2 text-lg">From</div>
-              <Input  placeholder="Enter Boarding location" className="uppercase"/>
+              <Input
+                type="text"
+                placeholder="Enter Boarding location"
+                className="uppercase"
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+                required
+              />
             </div>
             <div>
               <div className="mb-2 text-lg">To</div>
-              <Input  placeholder="Enter destination" className="uppercase"/>
+              <Input
+                type="text"
+                placeholder="Enter destination"
+                className="uppercase"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                required
+              />
             </div>
             <div>
               <div className="mb-2 text-lg">Travel Date</div>
-                <DatePickerDemo/>
+              <DatePickerDemo date={date} setDate={setDate} />
               {/* <div className="border rounded-lg py-2 px-4">
               </div> */}
             </div>
             <Link href="/buses" className="flex justify-center">
-              <Button className="md:w-[25vw] mt-2 w-[85vw] bg-[#FF6F00] hover:bg-[#FF6F00] hover:text-neutral-300 text-white font-semibold text-xl cursor-pointer">
+              <Button
+                onClick={handleSearch}
+                className="md:w-[25vw] mt-2 w-[85vw] bg-[#FF6F00] hover:bg-[#FF6F00] hover:text-neutral-300 text-white font-semibold text-xl cursor-pointer"
+              >
                 Search Bus
               </Button>
             </Link>
@@ -75,7 +164,9 @@ export default function Home() {
       </section>
       <section className="md:px-6 py-10 ">
         <div>
-          <h1 className="py-6 md:text-3xl text-2xl font-semibold md:px-0 px-2">Popular Bus Routes</h1>
+          <h1 className="py-6 md:text-3xl text-2xl font-semibold md:px-0 px-2">
+            Popular Bus Routes
+          </h1>
           {/* <div key={route.id}>{route.title}</div> */}
           <div className="grid md:grid-cols-3 grid-cols-1 gap-4 md:px-0 px-2">
             {routes.map((route) => (

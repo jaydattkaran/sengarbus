@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 const page = () => {
   return (
@@ -242,9 +243,12 @@ const page = () => {
               </div>
             </div>
           </div>
-          <Button className="border text-xl bg-[#FF6F00] hover:bg-[#FF6F00] text-white cursor-pointer font-semibold h-12 mt-4">
+
+          <Link href="/payment">
+          <Button className="w-full text-xl bg-[#FF6F00] hover:bg-[#FF6F00] text-white cursor-pointer font-semibold h-12 mt-4">
             Continue to Payment ₹ 315
           </Button>
+          </Link>
         </div>
       </section>
     </main>

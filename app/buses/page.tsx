@@ -1,8 +1,9 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import DatePickerDemo from "@/components/ui/datepicker";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -10,8 +11,79 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { format, parseISO } from "date-fns";
 
 const page = () => {
+  const searchParams = useSearchParams();
+  console.log("Query params:", searchParams.toString());
+  const router = useRouter();
+
+  const [source, setSource] = useState(searchParams.get("source") || "");
+  const [destination, setDestination] = useState(
+    searchParams.get("destination") || ""
+  );
+  const [buses, setBuses] = useState("");
+
+  // const initialDateString = searchParams.get("date");
+  // console.log("Initial date string:", initialDateString);
+  const initialDate = searchParams.get("date")
+    ? new Date(searchParams.get("date") as string)
+    : null;
+
+  // console.log("Parsed date:", initialDate);
+  const [date, setDate] = useState<Date | null>(initialDate);
+
+  
+
+  useEffect(() => {
+    if(!source || !destination || !date) return;
+
+    const formattedDate = format(date, "yyyy-MM-dd");
+    const query = new URLSearchParams({ source, destination, date: formattedDate }).toString();
+
+    const fetchBuses = async () => {
+      try {
+        const response = await fetch(`/api/search-buses?${query}`);
+        if(!response.ok) throw new Error("Failed to fetch buses");
+
+        const data = await response.json();
+        setBuses(data);
+      } catch(error){
+        console.log("Error fetching buses:", error);
+      }
+    };
+
+    fetchBuses();
+  }, [source, destination, date]);
+
+  const handleUpdateSearch = async () => {
+    if (!source || !destination || !date) return;
+
+    const formattedDate = format(date, "yyyy-MM-dd");
+    const newQuery = new URLSearchParams({
+      source,
+      destination,
+      date: formattedDate,
+    }).toString();
+    router.push(`/buses?${newQuery}`);
+
+    try {
+      const response = await fetch(`/api/search-buses?${newQuery}`);
+      if(!response.ok) throw new Error("Failed to fetch buses");
+
+      const data = await response.json();
+      setBuses(data);
+    } catch(error) {
+      console.log("Error fetching buses:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Loaded values:", { source, destination, date });
+  }, [source, destination, date]);
+
   return (
     <main>
       <section className="md:px-6 py-2">
@@ -19,24 +91,33 @@ const page = () => {
           <div>
             <div className="mb-2 text-lg">From</div>
             <Input
-              placeholder="Enter Boarding location"
+              type="text"
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              placeholder="Source"
               className="uppercase md:w-[15vw]"
             />
           </div>
           <div>
             <div className="mb-2 text-lg">To</div>
             <Input
+              type="text"
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
               placeholder="Enter destination"
               className="uppercase md:w-[15vw]"
             />
           </div>
           <div>
             <div className="mb-2 text-lg">Travel Date</div>
-            <DatePickerDemo />
+            <DatePickerDemo date={date} setDate={setDate} />
           </div>
           <div className="md:mt-10 mt-2">
             <Link href="/buses">
-              <Button className="bg-[#0077B6] h-12 uppercase hover:bg-[#0077B6] hover:text-neutral-400 text-white font-semibold text-xl cursor-pointer">
+              <Button
+                onClick={handleUpdateSearch}
+                className="bg-[#0077B6] h-12 uppercase hover:bg-[#0077B6] hover:text-neutral-400 text-white font-semibold text-xl cursor-pointer"
+              >
                 Update Search
               </Button>
             </Link>
@@ -138,7 +219,9 @@ const page = () => {
                   <div className="line-through text-sm">₹ 350</div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400 text-sm">Only 20 seats left</div>
+                  <div className="text-neutral-400 text-sm">
+                    Only 20 seats left
+                  </div>
                   <Link href="/ticket">
                     <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
                       Select Seat

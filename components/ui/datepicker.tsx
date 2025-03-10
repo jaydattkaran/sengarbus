@@ -13,8 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export default function DatePickerDemo() {
-  const [date, setDate] = React.useState<Date | undefined>(undefined);
+export default function DatePickerDemo({ date, setDate }: {date: Date | null; setDate: (date: Date | null) => void}) {
 
   // Function to set "Today"
   const setToday = () => setDate(new Date());
@@ -38,11 +37,15 @@ export default function DatePickerDemo() {
             )}
           >
             <CalendarIcon />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {date instanceof Date && !isNaN(date.getTime()) ? format(date, "PPP") : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+          <Calendar 
+          mode="single" 
+          selected={date ?? undefined} 
+          onSelect={(selectedDate) => setDate(selectedDate ?? null)} 
+          initialFocus />
         </PopoverContent>
       </Popover>
 
