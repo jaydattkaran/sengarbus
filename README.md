@@ -39,5 +39,99 @@ Make sure you have the following installed:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/sengarbus.git
+   git clone https://github.com/jaydattkaran/sengarbus.git
    cd sengarbus
+
+2. Install dependencies:
+    ```bash
+    npm install
+
+3. Start the Next.js development server:
+    ```bash
+    npm run dev```
+    The frontend will be running at http://localhost:3000.
+
+### Backend Setup
+
+1. Clone the repository:
+   ```bash
+   cd sengarbus/api
+
+2. Install dependencies:
+    ```bash
+    npm install
+
+3. Make sure you have the following installed:
+
+- Create the PostgreSQL database and run the migrations.
+- Set up Redis for session storage.
+
+4. Start the Backend server:
+    ```bash
+    npm run dev```
+    The backend will be running at http://localhost:5000.
+
+### Environment Variable
+
+Make sure to create a `.env` file in both the frontend and backend projects with the following variables:
+
+**Backend(`.env)**:
+
+```bash
+DATABASE_URL=""
+DB_PASSWORD=""
+PORT=""
+DB_USER=""
+HOST=""
+DB_NAME=""
+DB_PORT=""
+```
+
+### Folder Structure
+
+The project structure is organized as follows:
+
+```bash
+sengarbus/
+│
+├── frontend/               # Next.js frontend
+│   ├── pages/              # React components and pages
+│   ├── public/             # Static files like images, icons
+│   └── styles/             # Global styles
+│
+├── backend/                # Node.js backend
+│   ├── routes/             # API routes
+│   ├── controllers/        # Controllers for handling requests
+│   └── models/             # Database models
+│
+└── README.md               # Project documentation
+```
+
+### Contributing
+
+We welcome contributions to improve the SengarBus platform! To contribute, please fork the repository, create new branch, and submit a pull request with your changes. Follow the guidelines outlined below:
+
+1. **Fork the repository:** Click on the "Fork" button at the top-right of this page.
+
+2. **Clone your fork:** 
+    ```bash
+    git clone https://github.com/jaydattkaran/sengarbus.git
+    ```
+
+3. **Create a new branch:** 
+    ```bash
+    git checkout -b feature/new-feature
+    ```
+
+4. **Commit your changes:** 
+    ```bash
+    git commit -m "Description of your changes"
+    ```
+
+5. **Push your changes:** 
+    ```bash
+    git push origin feature/new-feature
+    ```
+
+6. **Open a Pull Request:** Go to the original repository and create a pull request.
+
