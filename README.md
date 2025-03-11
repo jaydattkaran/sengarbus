@@ -14,14 +14,14 @@ SengarBus is a web-based bus ticket booking platform designed to streamline the 
 
 - **Frontend**:
   - Next.js with TypeScript
-  - React.js
-  - CSS (for styling)
+  - Node.js for backend
+  - TailwindCSS (for styling)
 - **Backend**:
   - Node.js
   - Express.js
   - PostgreSQL (for database management)
   - Redis (for session management)
-- **Deployment**: The application is deployed using Vercel (for frontend) and a custom backend hosted on a separate server.
+- **Deployment**: The application is not deployed yet.
 
 ## Setup and Installation
 
