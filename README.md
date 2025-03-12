@@ -4,24 +4,29 @@ SengarBus is a web-based bus ticket booking platform designed to streamline the 
 
 ## Features
 
-- **Seat Selection**: Users can choose available seats based on their preferences.
+- **User Authentication**:
+  - Implemented using Clerk for secure and scalable authentication.
+  - Supports Google, Phone and password-based authentication.
+- **Seat Selection**:
+  - Users can choose seats dynamically from available options.
+  - Fixed pricing model implemented for seat selection.
 - **Live Bus Tracking**: Users can track the real-time location of buses during their journey.
 - **Multi-Vendor Platform**: Different bus operators can list their services, providing a variety of options for users.
-- **Payment Integration**: Seamless payment gateway integration for secure transactions.
+- **Payment Integration**: Secure online payment system for hassle-free bookings.
 - **Search Functionality**: Users can search for buses based on the source, destination, and travel date.
 
 ## Tech Stack
 
 - **Frontend**:
-  - Next.js with TypeScript
-  - Node.js for backend
+  - Next.js
   - TailwindCSS (for styling)
 - **Backend**:
-  - Node.js
+  - Node.js with TypeScript
   - Express.js
   - PostgreSQL (for database management)
-  - Redis (for session management)
-- **Deployment**: The application is not deployed yet.
+  - Session Management: Hybrid approach (session ID stored in cookies, session data stored in Redis)
+- **Authentication**: Clerk
+- **Deployment**: TBD
 
 ## Setup and Installation
 
@@ -38,46 +43,60 @@ Make sure you have the following installed:
 ### Frontend Setup
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/jaydattkaran/sengarbus.git
    cd sengarbus
 
+   ```
+
 2. Install dependencies:
-    ```bash
-    npm install
+
+   ```bash
+   npm install
+
+   ```
 
 3. Start the Next.js development server:
-    ```bash
-    npm run dev
-    ```
-    The frontend will be running at http://localhost:3000.
+   ```bash
+   npm run dev
+   ```
+   The frontend will be running at http://localhost:3000.
 
 ### Backend Setup
 
 1. Clone the repository:
+
    ```bash
    cd sengarbus/api
 
+   ```
+
 2. Install dependencies:
-    ```bash
-    npm install
+
+   ```bash
+   npm install
+
+   ```
 
 3. Make sure you have the following installed:
 
-- Create the PostgreSQL database and run the migrations.
-- Set up Redis for session storage.
+- Configure Clerk authentication keys.
+- Configure PostgreSQL database connection.
+- Set up Redis for session management.
+
 
 4. Start the Backend server:
-    ```bash
-    npm run dev
-    ```
-    The backend will be running at http://localhost:5000.
+   ```bash
+   npm run dev
+   ```
+   The backend will be running at http://localhost:5000.
 
 ### Environment Variable
 
 Make sure to create a `.env` file in both the frontend and backend projects with the following variables:
 
-**Backend(`.env)**:
+**Backend(`.env`)**:
 
 ```bash
 DATABASE_URL=""
@@ -111,29 +130,55 @@ sengarbus/
 
 ### Contributing
 
-We welcome contributions to improve the SengarBus platform! To contribute, please fork the repository, create new branch, and submit a pull request with your changes. Follow the guidelines outlined below:
+Contributions are welcome! If you'd like to improve the project, feel free to submit a pull request.
 
-1. **Fork the repository:** Click on the "Fork" button at the top-right of this page.
+To contribute, Follow the guidelines outlined below:
 
-2. **Clone your fork:** 
-    ```bash
-    git clone https://github.com/jaydattkaran/sengarbus.git
-    ```
+1. **Fork the repository:** Click the "Fork" button on the GitHub repository page to create a copy in your account.
 
-3. **Create a new branch:** 
-    ```bash
-    git checkout -b feature/new-feature
-    ```
+2. **Clone your fork:**
 
-4. **Commit your changes:** 
-    ```bash
-    git commit -m "Description of your changes"
-    ```
+```bash
+git clone https://github.com/jaydattkaran/sengarbus.git
+cd sengarbus
 
-5. **Push your changes:** 
-    ```bash
-    git push origin feature/new-feature
-    ```
+```
 
-6. **Open a Pull Request:** Go to the original repository and create a pull request.
+3. **Create a new branch:**
 
+   ```bash
+   git checkout -b feature-branch-name
+   ```
+
+4. **Make Your Changes**
+
+    - Follow best practices and coding guidelines.
+    - Ensure the code is clean and properly documented.
+
+
+5. **Commit your changes:**
+
+ ```bash
+git add .
+git commit -m "Add brief description of your changes"
+```
+
+6. **Push your changes to GitHub:**
+
+   ```bash
+   git push origin feature-branch-name
+   ```
+
+7. **Submit a Pull Request (PR)** 
+    - Open a PR from your branch to the `main` branch of the original repository.
+    - Provide a clear title and description of your changes.
+    - Wait for review and feedback.
+
+
+### Contribution Guidelines
+
+- Keep PRs small and focused on a single feature or fix.
+- Write meaningful commit messages.
+- Ensure compatibility with existing features.
+- Follow the project’s coding style and conventions.
+- Test your changes before submitting a PR.
