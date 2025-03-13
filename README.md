@@ -181,4 +181,4 @@ git commit -m "Add brief description of your changes"
 - Write meaningful commit messages.
 - Ensure compatibility with existing features.
 - Follow the project’s coding style and conventions.
-- Test your changes before submitting a PR.
+- Test your changes before submitting a PR
