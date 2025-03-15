@@ -1,12 +1,12 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/booking-confirmation/page": "app/booking-confirmation/page.js",
   "/account/[[...rest]]/page": "app/account/[[...rest]]/page.js",
   "/bookings/page": "app/bookings/page.js",
-  "/buses/page": "app/buses/page.js",
+  "/booking-confirmation/page": "app/booking-confirmation/page.js",
   "/help/page": "app/help/page.js",
-  "/page": "app/page.js",
+  "/buses/page": "app/buses/page.js",
   "/payment/page": "app/payment/page.js",
-  "/ticket/page": "app/ticket/page.js"
+  "/ticket/page": "app/ticket/page.js",
+  "/page": "app/page.js"
 }

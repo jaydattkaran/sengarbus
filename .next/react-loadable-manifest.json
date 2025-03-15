@@ -2,19 +2,19 @@
   "node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js": {
     "id": 60809,
     "files": [
-      "static/chunks/809.c6776baee03ceb70.js"
+      "static/chunks/809.bff54a0ec021b103.js"
     ]
   },
   "node_modules/@clerk/nextjs/dist/esm/app-router/client/keyless-cookie-sync.js -> ../keyless-actions.js": {
-    "id": 32676,
+    "id": 69661,
     "files": [
-      "static/chunks/676.86fed511cf0cf5ac.js"
+      "static/chunks/661.4ea69a37f664ec84.js"
     ]
   },
   "node_modules/jspdf/dist/jspdf.es.min.js -> canvg": {
     "id": 69300,
     "files": [
-      "static/chunks/bc98253f.a28aaaa3d24fa98c.js",
+      "static/chunks/bc98253f.f9f44fb3b4dc8dab.js",
       "static/chunks/839.b60a684cab31425a.js"
     ]
   },

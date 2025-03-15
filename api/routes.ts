@@ -20,7 +20,14 @@ interface Stop {
 }
 
 const router = Router();
-const redis = new Redis();
+// Ensure REDIS_URL is defined before using it
+if (!process.env.REDIS_URL) {
+  throw new Error("REDIS_URL is not set in environment variables");
+}
+
+const redis = new Redis(process.env.REDIS_URL, {
+  tls: process.env.REDIS_URL.startsWith("rediss://") ? {} : undefined, // Only use TLS for secure connections
+});
 if (!process.env.CLERK_SECRET_KEY) {
   console.error("Missing CLERK_SECRET_KEY environment variable");
   process.exit(1);

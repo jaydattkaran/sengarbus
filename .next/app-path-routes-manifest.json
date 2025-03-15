@@ -1,12 +1,12 @@
 {
   "/favicon.ico/route": "/favicon.ico",
   "/_not-found/page": "/_not-found",
-  "/booking-confirmation/page": "/booking-confirmation",
   "/account/[[...rest]]/page": "/account/[[...rest]]",
   "/bookings/page": "/bookings",
-  "/buses/page": "/buses",
+  "/booking-confirmation/page": "/booking-confirmation",
   "/help/page": "/help",
-  "/page": "/",
+  "/buses/page": "/buses",
   "/payment/page": "/payment",
-  "/ticket/page": "/ticket"
+  "/ticket/page": "/ticket",
+  "/page": "/"
 }

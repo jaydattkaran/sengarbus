@@ -30,6 +30,30 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/help": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/help",
+      "dataRoute": "/help.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/payment": {
       "experimentalBypassFor": [
         {
@@ -173,37 +197,13 @@
         "x-next-revalidated-tags",
         "x-next-revalidate-tag-token"
       ]
-    },
-    "/help": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/help",
-      "dataRoute": "/help.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
     }
   },
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "62cad73a8c0ca1222db3a8b4b3a73562",
-    "previewModeSigningKey": "b22d385e172f25c07133ec23831e0fcbdb50b8560dbeb945abfeb98bc531eb80",
-    "previewModeEncryptionKey": "edf2cf93ab6d3c2b0d2e65975b54c3ab00ea7da14c59438c469559913a974fd1"
+    "previewModeId": "80a392516efc102479829c857e8f741a",
+    "previewModeSigningKey": "fb83c70eba904b0ec8108a87e9e74e0af4f9095a556ee23c10a1c36dde24e24c",
+    "previewModeEncryptionKey": "61602ab7d9b76ba7c4f5ae8ae2f426797cca0714012929574cb18c4f8af66467"
   }
 }

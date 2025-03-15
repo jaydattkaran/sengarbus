@@ -96,11 +96,5 @@
     "pathHeader": "x-nextjs-rewritten-path",
     "queryHeader": "x-nextjs-rewritten-query"
   },
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "http://localhost:5000/api/:path*",
-      "regex": "^/api(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
-    }
-  ]
+  "rewrites": []
 }

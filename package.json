@@ -36,9 +36,11 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/estree": "^1.0.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/trusted-types": "^2.0.7",
     "eslint": "^9",
     "eslint-config-next": "15.2.0",
     "tailwindcss": "^4",
