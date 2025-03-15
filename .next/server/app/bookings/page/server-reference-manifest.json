@@ -1,0 +1,49 @@
+{
+  "node": {
+    "7f1c2e4e867d2c04620a5478365129885f2dc9ce64": {
+      "workers": {
+        "app/bookings/page": {
+          "moduleId": "[project]/.next-internal/server/app/bookings/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/bookings/page": "action-browser"
+      }
+    },
+    "7f49a9da34fe6e1ef94263a623e929f15879d5b2b7": {
+      "workers": {
+        "app/bookings/page": {
+          "moduleId": "[project]/.next-internal/server/app/bookings/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/bookings/page": "action-browser"
+      }
+    },
+    "7fcd0b39ea8842ae8d1fed6e9558a145b1312dda36": {
+      "workers": {
+        "app/bookings/page": {
+          "moduleId": "[project]/.next-internal/server/app/bookings/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/bookings/page": "action-browser"
+      }
+    },
+    "7f6b3d55d5811c5c9208f3deb8f3f04a1ba8a4c4cd": {
+      "workers": {
+        "app/bookings/page": {
+          "moduleId": "[project]/.next-internal/server/app/bookings/page/actions.js { ACTIONS_MODULE0 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/keyless-actions.js [app-rsc] (ecmascript)\", ACTIONS_MODULE1 => \"[project]/node_modules/@clerk/nextjs/dist/esm/app-router/server-actions.js [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/bookings/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}
