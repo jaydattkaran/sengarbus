@@ -1,30 +1,58 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import DatePickerDemo from "@/components/ui/datepicker";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import React, { useEffect } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { format, parseISO } from "date-fns";
+import { Users } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
-const page = () => {
+interface Bus {
+  isFullyBooked: string;
+  available_seats: number[];
+  schedule_id: number;
+  bus_id: number;
+  route_id: number;
+  bus_name: string;
+  bus_type: string;
+  capacity: number;
+  departure_time: string;
+  arrival_time: string;
+  price: number;
+  source: string;
+  destination: string;
+  distance_km: number;
+  totalAvailableSeats?: number;
+  lowestPrice?: number;
+  boarding_points: BoardingPoint[]; // ✅ Add this
+  dropping_points: DroppingPoint[];
+}
+interface BoardingPoint {
+  stop_type: string;
+  location_name: string;
+  time: string;
+}
+interface DroppingPoint {
+  stop_type: string;
+  location_name: string;
+  time: string;
+}
+interface Seat {
+  seat_no: number;
+  seat_type: string;
+  status: "Booked" | "Available";
+  price: number;
+}
+
+const Page = () => {
+  const { isSignedIn } = useUser();
   const searchParams = useSearchParams();
-  console.log("Query params:", searchParams.toString());
+  // console.log("Query params:", searchParams.toString());
   const router = useRouter();
 
-  const [source, setSource] = useState(searchParams.get("source") || "");
-  const [destination, setDestination] = useState(
-    searchParams.get("destination") || ""
-  );
-  const [buses, setBuses] = useState("");
+  const [source] = useState(searchParams.get("source") || "");
+  const [destination] = useState(searchParams.get("destination") || "");
+  const [buses, setBuses] = useState<Bus[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // const initialDateString = searchParams.get("date");
   // console.log("Initial date string:", initialDateString);
@@ -33,595 +61,324 @@ const page = () => {
     : null;
 
   // console.log("Parsed date:", initialDate);
-  const [date, setDate] = useState<Date | null>(initialDate);
+  const [travelDate] = useState<Date | null>(initialDate);
 
-  
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" }); // "Mar 4"
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }); // "21:00"
+  };
+
+  const formattedBuses = buses.map((bus) => ({
+    ...bus,
+    formattedDeparture: formatDate(bus.departure_time),
+    formattedArrival: formatDate(bus.arrival_time),
+  }));
 
   useEffect(() => {
-    if(!source || !destination || !date) return;
+    if (!source || !destination || !travelDate) return;
 
-    const formattedDate = format(date, "yyyy-MM-dd");
-    const query = new URLSearchParams({ source, destination, date: formattedDate }).toString();
+    // const formattedDate = format(travelDate, "yyyy-MM-dd");
+    // const query = new URLSearchParams({
+    //   source,
+    //   destination,
+    //   date: formattedDate,
+    // }).toString();
 
     const fetchBuses = async () => {
       try {
-        const response = await fetch(`/api/search-buses?${query}`);
-        if(!response.ok) throw new Error("Failed to fetch buses");
+        setLoading(true);
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${API_URL}/api/search-buses`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            source,
+            destination,
+            travelDate: travelDate
+              ? travelDate.toISOString().split("T")[0]
+              : null,
+          }),
+        });
 
-        const data = await response.json();
-        setBuses(data);
-      } catch(error){
+        if (!response.ok) throw new Error("Failed to fetch buses");
+
+        const data = await response.json(); //function example<T>(data: T) { }
+        console.log("Available buses:", data);
+
+        const busesWithSeatCount =
+          data.buses?.map((bus: Bus) => {
+            // Ensure available_seats is an array of objects, not just numbers
+            const seats = (bus.available_seats as unknown as Seat[]) || [];
+
+            return {
+              ...bus,
+              totalAvailableSeats: seats.filter(
+                (seat) => seat.status === "Available"
+              ).length,
+              lowestPrice:
+                seats.length > 0
+                  ? Math.min(...seats.map((seat) => +seat.price))
+                  : null,
+            };
+          }) || [];
+
+        setBuses(busesWithSeatCount);
+      } catch (error) {
         console.log("Error fetching buses:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchBuses();
-  }, [source, destination, date]);
+  }, [source, destination, travelDate]);
 
-  const handleUpdateSearch = async () => {
-    if (!source || !destination || !date) return;
+  if (loading) return <p>Loading buses...</p>;
 
-    const formattedDate = format(date, "yyyy-MM-dd");
-    const newQuery = new URLSearchParams({
-      source,
-      destination,
-      date: formattedDate,
-    }).toString();
-    router.push(`/buses?${newQuery}`);
+  const handleSelectBus = async (bus: Bus) => {
+    if (bus.isFullyBooked) {
+      alert("This bus is fully booked.");
+      return; // Stop execution, don't proceed
+    }
 
     try {
-      const response = await fetch(`/api/search-buses?${newQuery}`);
-      if(!response.ok) throw new Error("Failed to fetch buses");
+      if (!isSignedIn) {
+        alert("Please sign in to continue booking.");
+        return;
+      }
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${API_URL}/api/buses/select`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ bus }),
+      });
 
-      const data = await response.json();
-      setBuses(data);
-    } catch(error) {
-      console.log("Error fetching buses:", error);
+      if (!response.ok) {
+        alert("Bus not selected.");
+      } else {
+        const data = await response.json();
+        console.log("bus details for booking", data);
+        router.push(`/ticket?busId=${bus.bus_id}&routeId=${bus.route_id}`);
+      }
+    } catch (error) {
+      console.log("Error selecting bus:", error);
+      alert("An error occurred. Please try again.");
     }
   };
 
-  useEffect(() => {
-    console.log("Loaded values:", { source, destination, date });
-  }, [source, destination, date]);
+  // const handleUpdateSearch = async () => {
+  //   if (!source || !destination || !travelDate) return;
+
+  //   const formattedDate = format(travelDate, "yyyy-MM-dd");
+  //   const newQuery = new URLSearchParams({
+  //     source,
+  //     destination,
+  //     date: formattedDate,
+  //   }).toString();
+  //   router.push(`/buses?${newQuery}`);
+
+  //   try {
+  //     const response = await fetch(`/api/search-buses?${newQuery}`);
+  //     if(!response.ok) throw new Error("Failed to fetch buses");
+
+  //     const data = await response.json();
+  //     setBuses(data);
+  //   } catch(error) {
+  //     console.log("Error fetching buses:", error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   console.log("Loaded values:", { source, destination, travelDate });
+  // }, [source, destination, travelDate]);
 
   return (
     <main>
-      <section className="md:px-6 py-2">
-        <div className="flex md:flex-row flex-col gap-4">
-          <div>
-            <div className="mb-2 text-lg">From</div>
-            <Input
-              type="text"
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              placeholder="Source"
-              className="uppercase md:w-[15vw]"
-            />
-          </div>
-          <div>
-            <div className="mb-2 text-lg">To</div>
-            <Input
-              type="text"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              placeholder="Enter destination"
-              className="uppercase md:w-[15vw]"
-            />
-          </div>
-          <div>
-            <div className="mb-2 text-lg">Travel Date</div>
-            <DatePickerDemo date={date} setDate={setDate} />
-          </div>
-          <div className="md:mt-10 mt-2">
-            <Link href="/buses">
-              <Button
-                onClick={handleUpdateSearch}
-                className="bg-[#0077B6] h-12 uppercase hover:bg-[#0077B6] hover:text-neutral-400 text-white font-semibold text-xl cursor-pointer"
-              >
-                Update Search
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-      <section className="grid grid-cols-2 md:px-6 py-4">
-        <div className="border max-w-[20vw] hidden md:block rounded px-4 py-4 flex flex-col gap-4">
-          <div className="text-xl font-semibold">Filters</div>
-          <div>
-            <div className="text-lg uppercase mb-2 font-semibold">Bus type</div>
-            <div className="grid grid-cols-2 gap-4">
-              <Button variant={"outline"} className="rounded">
-                AC
-              </Button>
-              <Button variant={"outline"} className="rounded">
-                AC
-              </Button>
-              <Button variant={"outline"} className="rounded">
-                AC
-              </Button>
-              <Button variant={"outline"} className="rounded">
-                AC
-              </Button>
+      <section className="py-4">
+        <div className="p-2">
+          <section className="py-4 md:mx-4">
+            <div>
+              <h1 className="text-xl px-2">
+                Buses from {source} to {destination} on{" "}
+                {formattedBuses[0]?.formattedDeparture}
+              </h1>
+              {/* for mobile */}
+              <ul className="py-2 mt-4 px-1 flex flex-col gap-4 md:hidden block">
+                {Array.isArray(buses) && buses.length > 0 ? (
+                  buses.map((bus) => (
+                    <li
+                      key={bus.schedule_id}
+                      onClick={() => handleSelectBus(bus)}
+                      className="cursor-pointer"
+                    >
+                      <div className="w-[95vw] rounded glass-box border grid md:grid-cols-3 md:gap-1 gap-2 p-1 py-2">
+                        <div className="px-2 flex md:flex-col flex-row justify-between items-center md:gap-4 gap-20">
+                          <div>
+                            <div className="text-xl font-semibold">
+                              {bus.bus_name}
+                            </div>
+                            <div className="text-neutral-400 text-sm">
+                              {bus.bus_type}
+                            </div>
+                          </div>
+                          <div>4.0/5</div>
+                        </div>
+                        <div className="flex justify-between pb-2">
+                          <div>
+                            <div className="flex justify-between gap-2 px-2">
+                              <div>
+                                <div className="text-xl font-semibold">
+                                  {formatTime(bus.departure_time)}
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-center justify-center">
+                                <div className="text-neutral-300">
+                                  - {bus.distance_km} km -
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-xl font-semibold">
+                                  {formatTime(bus.arrival_time)}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="px-2 text-sm text-gray-400 flex gap-1">
+                              <Users className="w-4 h-4" />{" "}
+                              <div className="items-center">
+                                {bus.totalAvailableSeats} Seats
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex md:flex-col justify-between items-end gap-2 pr-2 md:px-0 px-2">
+                            <div>
+                              <div className="text-xl font-semibold">
+                                {bus.lowestPrice !== null && (
+                                  <div className="text-xl font-semibold">
+                                    ₹ {bus.lowestPrice}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <p>No buses available</p>
+                )}
+              </ul>
             </div>
-          </div>
-          <div>
-            <div className="text-lg font-semibold mb-4">Boarding Point</div>
-            <Select>
-              <SelectTrigger className="w-[18vw]">
-                <SelectValue placeholder="Select your boarding" />
-              </SelectTrigger>
-              <SelectContent className="py-2">
-                <SelectItem value="light">Chandrawani Naka Bus Stop</SelectItem>
-                <SelectItem value="dark">
-                  Chandrawani Naka Bus Stop 2
-                </SelectItem>
-                <SelectItem value="system">
-                  Chandrawani Naka Bus Stop 3
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <div className="text-lg font-semibold mb-4">Dropping Point</div>
-            <Select>
-              <SelectTrigger className="w-[18vw]">
-                <SelectValue placeholder="Select your dropping point" />
-              </SelectTrigger>
-              <SelectContent className="py-2">
-                <SelectItem value="light">Nadra Bus Stand</SelectItem>
-                <SelectItem value="dark">Nadra Bus Stand 2</SelectItem>
-                <SelectItem value="system">Nadra Bus Stand 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="md:min-w-[45vw] min-w-[98vw] -translate-x-4 md:-translate-x-[9vw] p-2">
-          <div>
-            <div className="w-[10rem] h-[5rem] border rounded"></div>
-          </div>
+            {/* for desktop */}
+            <div>
+              <ul className="py-2 mt-4 px-1 flex flex-col gap-4 hidden md:block">
+                {Array.isArray(buses) && buses.length > 0 ? (
+                  buses.map((bus) => (
+                    <li key={bus.schedule_id}>
+                      <div className="w-full mt-4 rounded glass-box border flex justify-between gap-2 px-2 py-4">
+                        <div className="flex flex-col justify-between gap-4">
+                          <div>
+                            <div className="text-xl font-semibold">
+                              {bus.bus_name}
+                            </div>
+                            <div className="text-neutral-400 text-sm">
+                              {bus.bus_type}
+                            </div>
+                          </div>
+                          <div>4.0/5</div>
+                        </div>
+                        <div className="flex justify-between gap-2 min-w-[18vw]">
+                          <div>
+                            <div className="text-sm">
+                              {formatDate(bus.departure_time)}
+                            </div>
+                            <div className="text-xl font-semibold">
+                              {formatTime(bus.departure_time)}
+                            </div>
+                            <div className="text-sm w-[7rem]">
+                              {bus.boarding_points?.length > 0 ? (
+                                <p>{bus.boarding_points[0].location_name}</p>
+                              ) : (
+                                <p>Not available</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-center pr-4">
+                            <div className="text-neutral-300">
+                              {bus.distance_km} km
+                            </div>
+                            <div className="relative flex items-center">
+                              <div className="w-[5rem] h-1 bg-neutral-400 relative">
+                                <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
+                                <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-sm">
+                              {formatDate(bus.arrival_time)}
+                            </div>
+                            <div className="text-xl font-semibold">
+                              {formatTime(bus.arrival_time)}
+                            </div>
+                            <div className="text-sm w-[7rem]">
+                              {bus.dropping_points?.length > 0 ? (
+                                <p>{bus.dropping_points[0].location_name}</p>
+                              ) : (
+                                <p>Not available</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex md:flex-col  justify-between items-end gap-2">
+                          <div>
+                            {bus.lowestPrice !== null && (
+                              <div className="text-xl font-semibold">
+                                ₹ {bus.lowestPrice}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="text-neutral-400 text-sm">
+                              {bus.totalAvailableSeats} Seats
+                            </div>
 
-          {/* for mobile */}
-          <div className="py-2 mt-4 px-1 flex flex-col gap-4 block md:hidden">
-            <div className="w-full rounded glass-box border grid md:grid-cols-3 md:gap-1 gap-2 p-1 py-4">
-              <div className="px-2 flex md:flex-col items-center md:gap-4 gap-20">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400 text-sm">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5</div>
-              </div>
-              <div className="flex justify-between gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                </div>
-              </div>
-              <div className="flex md:flex-col justify-between items-end gap-2 pr-2 md:px-0 px-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div className="line-through text-sm">₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400 text-sm">
-                    Only 20 seats left
-                  </div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
+                            <Button
+                              onClick={() => handleSelectBus(bus)}
+                              className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]"
+                            >
+                              Select Seat
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <p>No buses available</p>
+                )}
+              </ul>
             </div>
-            <div className="w-full rounded glass-box border grid md:grid-cols-3 md:gap-1 gap-2 p-1 py-4">
-              <div className="px-2 flex md:flex-col items-center md:gap-4 gap-20">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5</div>
-              </div>
-              <div className="flex justify-between gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                </div>
-              </div>
-              <div className="flex md:flex-col justify-between items-end gap-2 pr-2 md:px-0 px-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div className="line-through">₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400">Only 20 seats left</div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="w-full rounded glass-box border grid md:grid-cols-3 md:gap-1 gap-2 p-1 py-4">
-              <div className="px-2 flex md:flex-col items-center md:gap-4 gap-20">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5</div>
-              </div>
-              <div className="flex justify-between gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                </div>
-              </div>
-              <div className="flex md:flex-col justify-between items-end gap-2 pr-2 md:px-0 px-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div className="line-through">₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400">Only 20 seats left</div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="w-full rounded glass-box border grid md:grid-cols-3 md:gap-1 gap-2 p-1 py-4">
-              <div className="px-2 flex md:flex-col items-center md:gap-4 gap-20">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5</div>
-              </div>
-              <div className="flex justify-between gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                </div>
-              </div>
-              <div className="flex md:flex-col justify-between items-end gap-2 pr-2 md:px-0 px-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div className="line-through">₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400">Only 20 seats left</div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="w-full rounded glass-box border grid md:grid-cols-3 md:gap-1 gap-2 p-1 py-4">
-              <div className="px-2 flex md:flex-col items-center md:gap-4 gap-20">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5</div>
-              </div>
-              <div className="flex justify-between gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                </div>
-              </div>
-              <div className="flex md:flex-col justify-between items-end gap-2 pr-2 md:px-0 px-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div className="line-through">₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400">Only 20 seats left</div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* for desktop */}
-          <div className="py-2 mt-4 flex flex-col gap-4 hidden md:block">
-            <div className="w-full rounded glass-box border grid md:grid-cols-3 gap-1 p-1 py-4">
-              <div className="px-2 flex flex-col gap-4">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5 | 100+ Ratings</div>
-              </div>
-              <div className="flex gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                  <div className="text-sm w-[7rem]">
-                    Chandrawani Naka Bus Stop
-                  </div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                  <div className="text-sm w-[7rem]">Nadra Bus Stand</div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2 pr-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div className="line-through">₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400">Only 20 seats left</div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="w-full rounded glass-box border grid grid-cols-3 gap-1 p-1 py-4">
-              <div className="px-2 flex flex-col gap-4">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5 | 100+ Ratings</div>
-              </div>
-              <div className="flex gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                  <div className="text-sm w-[7rem]">
-                    Chandrawani Naka Bus Stop
-                  </div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                  <div className="text-sm w-[7rem]">Nadra Bus Stand</div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2 pr-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div>₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400">Only 20 seats left</div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="w-full rounded glass-box border grid grid-cols-3 gap-1 p-1 py-4">
-              <div className="px-2 flex flex-col gap-4">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5 | 100+ Ratings</div>
-              </div>
-              <div className="flex gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                  <div className="text-sm w-[7rem]">
-                    Chandrawani Naka Bus Stop
-                  </div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                  <div className="text-sm w-[7rem]">Nadra Bus Stand</div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2 pr-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div>₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400">Only 20 seats left</div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="w-full rounded glass-box border grid grid-cols-3 gap-1 p-1 py-4">
-              <div className="px-2 flex flex-col gap-4">
-                <div>
-                  <div className="text-xl font-semibold">
-                    Sengar Travels Gwalior
-                  </div>
-                  <div className="text-neutral-400">
-                    NON AC Seater/Sleeper 2+1
-                  </div>
-                </div>
-                <div>4.0/5 | 100+ Ratings</div>
-              </div>
-              <div className="flex gap-2 px-2 min-w-[18vw]">
-                <div>
-                  <div className="text-sm">Mar 4</div>
-                  <div className="text-xl font-semibold">21:00</div>
-                  <div className="text-sm w-[7rem]">
-                    Chandrawani Naka Bus Stop
-                  </div>
-                </div>
-                <div className="pr-2">
-                  <div className="text-neutral-300">09h 30min</div>
-                  <div className="relative flex items-center">
-                    <div className="w-[5rem] h-1 bg-neutral-400 relative">
-                      <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                      <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"></span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm">Mar 5</div>
-                  <div className="text-xl font-semibold">07:00</div>
-                  <div className="text-sm w-[7rem]">Nadra Bus Stand</div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2 pr-2">
-                <div>
-                  <div className="text-xl font-semibold">₹ 315</div>
-                  <div>₹ 350</div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="text-neutral-400">Only 20 seats left</div>
-                  <Link href="/ticket">
-                    <Button className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]">
-                      Select Seat
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
       </section>
     </main>
   );
 };
 
-export default page;
+export default Page;

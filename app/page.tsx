@@ -1,5 +1,4 @@
 "use client";
-// import * as React from "react"
 import { useState, useEffect } from "react";
 import {
   Accordion,
@@ -7,21 +6,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { routes } from "@/components/data/routes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import DatePickerDemo from "@/components/ui/datepicker";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("general");
   const router = useRouter();
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
-  const [date, setDate] = useState<Date | null>(null);
-  const [buses, setBuses] = useState<any[]>([]);
+  const [travelDate, serTravelDate] = useState<Date | null>(null);
 
   const categories = [
     { id: "general", label: "General" },
@@ -32,7 +28,9 @@ export default function Home() {
 
   const generateSession = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/session/create", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+      const response = await fetch(`${API_URL}/api/session/create`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -45,7 +43,7 @@ export default function Home() {
       }
 
       const data = await response.json();
-      console.log("Session Response:", data);
+      // console.log("Session Response:", data);
 
       document.cookie = `sessionId=${data.sessionID}; path=/; max-age=${
         60 * 60
@@ -55,55 +53,23 @@ export default function Home() {
     }
   };
 
-  const getSessionIdFromCookie = (): string | null => {
-    const match = document.cookie.match(new RegExp("(^| )sessionId=([^;]+)"));
-    return match ? match[2] : null;
-  };
-
   useEffect(() => {
     generateSession();
   }, []);
-  useEffect(() => {
-    if (!source || !destination || !date) return;
 
-    const formattedDate = format(date, "yyyy-MM-dd");
-    const query = { source, destination, date: formattedDate };
-
-    const fetchBuses = async () => {
-      // const sessionId = getSessionIdFromCookie();
-      try {
-        const response = await fetch("http://localhost:5000/api/booking/store", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(query),
-        });
-        if (!response.ok) throw new Error("Failed to fetch buses");
-
-        const data = await response.json();
-        console.log("Data fetched from DB:", data);
-        setBuses(data);
-        router.push(
-          `/buses?source=${encodeURIComponent(
-            source
-          )}&destination=${encodeURIComponent(destination)}&date=${date}`
-        );
-      } catch (error) {
-        console.log("Error fetching buses:", error);
-      }
-    };
-
-    fetchBuses();
-  }, [source, destination, date]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!source || !destination || !setDate) {
+    if (!source || !destination || !travelDate) {
       alert("Please fill all fields");
       return;
     }
-
+    
+    router.push(
+            `/buses?source=${encodeURIComponent(
+              source
+            )}&destination=${encodeURIComponent(destination)}&date=${travelDate}`
+          );
     // const formattedDate = date ? date.toISOString().split("T")[0] : "";
   };
 
@@ -120,7 +86,7 @@ export default function Home() {
               <Input
                 type="text"
                 placeholder="Enter Boarding location"
-                className="uppercase"
+                className=""
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
                 required
@@ -131,7 +97,7 @@ export default function Home() {
               <Input
                 type="text"
                 placeholder="Enter destination"
-                className="uppercase"
+                className=""
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
                 required
@@ -139,9 +105,7 @@ export default function Home() {
             </div>
             <div>
               <div className="mb-2 text-lg">Travel Date</div>
-              <DatePickerDemo date={date} setDate={setDate} />
-              {/* <div className="border rounded-lg py-2 px-4">
-              </div> */}
+              <DatePickerDemo date={travelDate} setDate={serTravelDate} />
             </div>
             <Link href="/buses" className="flex justify-center">
               <Button
@@ -162,28 +126,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="md:px-6 py-10 ">
-        <div>
-          <h1 className="py-6 md:text-3xl text-2xl font-semibold md:px-0 px-2">
-            Popular Bus Routes
-          </h1>
-          {/* <div key={route.id}>{route.title}</div> */}
-          <div className="grid md:grid-cols-3 grid-cols-1 gap-4 md:px-0 px-2">
-            {routes.map((route) => (
-              <div
-                key={route.id}
-                className="border rounded-lg cursor-pointer glass-box px-2 py-2 flex flex-row gap-4 items-center"
-              >
-                <img src={route.image} alt="img" className="w-8 h-8" />
-                <div>
-                  <div className="md:text-lg font-semibold">{route.title}</div>
-                  <div className="md:text-md text-sm">{route.to}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
       <section className="md:px-6 py-10">
         <div className="md:text-2xl text-xl font-semibold py-2">
           SengarBus – Hassle-Free Online Booking for Sengar Travels
@@ -192,7 +135,7 @@ export default function Home() {
           SengarBus is the official online booking platform for Sengar Travels,
           designed to make bus ticket reservations effortless. Say goodbye to
           manual bookings and enjoy a seamless digital experience. Whether
-          you're commuting daily or planning a long trip, SengarBus offers a
+          you&apos;re commuting daily or planning a long trip, SengarBus offers a
           quick and secure way to book your tickets. With just a few clicks, you
           can check seat availability, compare routes, select your preferred
           seat, and make payments using multiple secure options like UPI,
@@ -358,7 +301,7 @@ export default function Home() {
               <AccordionItem value="item-1">
                 <AccordionTrigger>Can I cancel my ticket?</AccordionTrigger>
                 <AccordionContent>
-                  Yes, you can cancel your ticket based on Sengar Travels'
+                  Yes, you can cancel your ticket based on Sengar Travels
                   cancellation policy. Go to the Manage Booking section and
                   follow the instructions.
                 </AccordionContent>
@@ -369,7 +312,7 @@ export default function Home() {
                 </AccordionTrigger>
                 <AccordionContent>
                   Refunds depend on cancellation timing and the travel
-                  operator’s policy. Partial or full refunds may apply.
+                  operator&apos;s policy. Partial or full refunds may apply.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3">

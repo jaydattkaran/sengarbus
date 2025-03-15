@@ -26,7 +26,7 @@ export default function DatePickerDemo({ date, setDate }: {date: Date | null; se
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-1 justify-between border rounded-lg py-2 px-2">
+    <div className="flex flex-col gap-1 justify-between border rounded-lg py-2 px-2">
       <Popover>
         <PopoverTrigger asChild>
           <Button

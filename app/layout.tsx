@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from '@clerk/themes'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,14 +31,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-
-        <main className="flex flex-col justify-between items-center">
-          <Navbar/>
-          <div className="flex flex-col justify-center lg:max-w-[60vw] max-w-[90vw] items-center">
-            {children}
-          </div>
-          <Footer/>
-        </main>
+        <ClerkProvider
+        appearance={{
+          baseTheme: dark,
+        }}
+        >
+          <main className="flex flex-col justify-between items-center">
+            <Navbar />
+            <div className="flex flex-col justify-center lg:max-w-[60vw] max-w-[90vw] items-center">
+              {children}
+            </div>
+            <Footer />
+          </main>
+        </ClerkProvider>
       </body>
     </html>
   );

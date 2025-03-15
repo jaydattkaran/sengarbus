@@ -1,0 +1,31 @@
+{
+  "node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js": {
+    "id": 60809,
+    "files": [
+      "static/chunks/809.c6776baee03ceb70.js"
+    ]
+  },
+  "node_modules/@clerk/nextjs/dist/esm/app-router/client/keyless-cookie-sync.js -> ../keyless-actions.js": {
+    "id": 32676,
+    "files": [
+      "static/chunks/676.86fed511cf0cf5ac.js"
+    ]
+  },
+  "node_modules/jspdf/dist/jspdf.es.min.js -> canvg": {
+    "id": 69300,
+    "files": [
+      "static/chunks/bc98253f.a28aaaa3d24fa98c.js",
+      "static/chunks/839.b60a684cab31425a.js"
+    ]
+  },
+  "node_modules/jspdf/dist/jspdf.es.min.js -> dompurify": {
+    "id": 56457,
+    "files": [
+      "static/chunks/457.c356a5ad19e1c6e3.js"
+    ]
+  },
+  "node_modules/jspdf/dist/jspdf.es.min.js -> html2canvas": {
+    "id": 40078,
+    "files": []
+  }
+}

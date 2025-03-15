@@ -1,16 +1,14 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import router from "./routes";
-import Redis from "ioredis";
 import cookieParser from "cookie-parser";
-// import { createClient } from 'redis'
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
-const redis = new Redis();
 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 // redis.on("error", (err) => console.error("Redis error:", err));
