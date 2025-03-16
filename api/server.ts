@@ -22,20 +22,6 @@ app.use(
   })
 );
 
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET!,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: true, // Use "true" in production
-      sameSite: "none", // Change to "none" if backend & frontend are on different domains
-    },
-  })
-);
-
 app.use("/api", router);
 
 app.listen(5000, "0.0.0.0", () => { 

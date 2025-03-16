@@ -1,0 +1,12 @@
+{
+  "/favicon.ico/route": "/favicon.ico",
+  "/_not-found/page": "/_not-found",
+  "/account/[[...rest]]/page": "/account/[[...rest]]",
+  "/buses/page": "/buses",
+  "/bookings/page": "/bookings",
+  "/payment/page": "/payment",
+  "/booking-confirmation/page": "/booking-confirmation",
+  "/help/page": "/help",
+  "/page": "/",
+  "/ticket/page": "/ticket"
+}

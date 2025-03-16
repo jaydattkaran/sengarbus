@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*', // Replace with your backend URL
+        destination: 'https://sengarbus.onrender.com/api/:path*', // Replace with your backend URL
       },
     ];
   },
