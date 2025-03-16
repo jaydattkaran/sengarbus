@@ -49,9 +49,8 @@ redis
   
         res.cookie("sessionId", sessionID, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production", // ✅ Use secure cookies in production
-          sameSite: "none", // ✅ Required for cross-origin requests
-          domain: ".sengarbus.com", // ✅ Shared between frontend & backend
+          secure: process.env.NODE_ENV === "production", 
+          sameSite: "none", 
           path: "/",
           maxAge: 60 * 60 * 1000, // 1 hour
         });
