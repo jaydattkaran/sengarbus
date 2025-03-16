@@ -168,10 +168,16 @@ const Page = () => {
         body: JSON.stringify({ bus }),
       });
 
+      const data = await response.json();
+      console.log("API Response:", response.status, data);
+
       if (!response.ok) {
-        alert("Bus not selected.");
+        alert(
+          `Bus not selected. Server response: ${
+            data.message || "Unknown error"
+          }`
+        );
       } else {
-        const data = await response.json();
         console.log("bus details for booking", data);
         router.push(`/ticket?busId=${bus.bus_id}&routeId=${bus.route_id}`);
       }

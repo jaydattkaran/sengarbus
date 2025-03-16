@@ -146,10 +146,11 @@ const Page = ()=>{
                     bus
                 })
             });
+            const data = await response.json();
+            console.log("API Response:", response.status, data);
             if (!response.ok) {
-                alert("Bus not selected.");
+                alert(`Bus not selected. Server response: ${data.message || "Unknown error"}`);
             } else {
-                const data = await response.json();
                 console.log("bus details for booking", data);
                 router.push(`/ticket?busId=${bus.bus_id}&routeId=${bus.route_id}`);
             }
@@ -202,7 +203,7 @@ const Page = ()=>{
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/buses/page.tsx",
-                                    lineNumber: 216,
+                                    lineNumber: 222,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -223,7 +224,7 @@ const Page = ()=>{
                                                                         children: bus.bus_name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 232,
+                                                                        lineNumber: 238,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -231,26 +232,26 @@ const Page = ()=>{
                                                                         children: bus.bus_type
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 235,
+                                                                        lineNumber: 241,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                lineNumber: 231,
+                                                                lineNumber: 237,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                 children: "4.0/5"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                lineNumber: 239,
+                                                                lineNumber: 245,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/buses/page.tsx",
-                                                        lineNumber: 230,
+                                                        lineNumber: 236,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -267,12 +268,12 @@ const Page = ()=>{
                                                                                     children: formatTime(bus.departure_time)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                                    lineNumber: 245,
+                                                                                    lineNumber: 251,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                                lineNumber: 244,
+                                                                                lineNumber: 250,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -286,12 +287,12 @@ const Page = ()=>{
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                                    lineNumber: 250,
+                                                                                    lineNumber: 256,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                                lineNumber: 249,
+                                                                                lineNumber: 255,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -300,18 +301,18 @@ const Page = ()=>{
                                                                                     children: formatTime(bus.arrival_time)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                                    lineNumber: 255,
+                                                                                    lineNumber: 261,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                                lineNumber: 254,
+                                                                                lineNumber: 260,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 243,
+                                                                        lineNumber: 249,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -321,7 +322,7 @@ const Page = ()=>{
                                                                                 className: "w-4 h-4"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                                lineNumber: 261,
+                                                                                lineNumber: 267,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             " ",
@@ -333,19 +334,19 @@ const Page = ()=>{
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                                lineNumber: 262,
+                                                                                lineNumber: 268,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 260,
+                                                                        lineNumber: 266,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                lineNumber: 242,
+                                                                lineNumber: 248,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -361,56 +362,56 @@ const Page = ()=>{
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/buses/page.tsx",
-                                                                            lineNumber: 271,
+                                                                            lineNumber: 277,
                                                                             columnNumber: 35
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 269,
+                                                                        lineNumber: 275,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 268,
+                                                                    lineNumber: 274,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                lineNumber: 267,
+                                                                lineNumber: 273,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/buses/page.tsx",
-                                                        lineNumber: 241,
+                                                        lineNumber: 247,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/buses/page.tsx",
-                                                lineNumber: 229,
+                                                lineNumber: 235,
                                                 columnNumber: 23
                                             }, this)
                                         }, bus.schedule_id, false, {
                                             fileName: "[project]/app/buses/page.tsx",
-                                            lineNumber: 224,
+                                            lineNumber: 230,
                                             columnNumber: 21
                                         }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         children: "No buses available"
                                     }, void 0, false, {
                                         fileName: "[project]/app/buses/page.tsx",
-                                        lineNumber: 283,
+                                        lineNumber: 289,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/buses/page.tsx",
-                                    lineNumber: 221,
+                                    lineNumber: 227,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/buses/page.tsx",
-                            lineNumber: 215,
+                            lineNumber: 221,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -430,7 +431,7 @@ const Page = ()=>{
                                                                     children: bus.bus_name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 296,
+                                                                    lineNumber: 302,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -438,26 +439,26 @@ const Page = ()=>{
                                                                     children: bus.bus_type
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 299,
+                                                                    lineNumber: 305,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/buses/page.tsx",
-                                                            lineNumber: 295,
+                                                            lineNumber: 301,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             children: "4.0/5"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/buses/page.tsx",
-                                                            lineNumber: 303,
+                                                            lineNumber: 309,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/buses/page.tsx",
-                                                    lineNumber: 294,
+                                                    lineNumber: 300,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -470,7 +471,7 @@ const Page = ()=>{
                                                                     children: formatDate(bus.departure_time)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 307,
+                                                                    lineNumber: 313,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -478,7 +479,7 @@ const Page = ()=>{
                                                                     children: formatTime(bus.departure_time)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 310,
+                                                                    lineNumber: 316,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -487,24 +488,24 @@ const Page = ()=>{
                                                                         children: bus.boarding_points[0].location_name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 315,
+                                                                        lineNumber: 321,
                                                                         columnNumber: 33
                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                         children: "Not available"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 317,
+                                                                        lineNumber: 323,
                                                                         columnNumber: 33
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 313,
+                                                                    lineNumber: 319,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/buses/page.tsx",
-                                                            lineNumber: 306,
+                                                            lineNumber: 312,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -518,7 +519,7 @@ const Page = ()=>{
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 322,
+                                                                    lineNumber: 328,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -530,31 +531,31 @@ const Page = ()=>{
                                                                                 className: "absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                                lineNumber: 327,
+                                                                                lineNumber: 333,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                 className: "absolute -right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-neutral-400 rounded-full"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                                lineNumber: 328,
+                                                                                lineNumber: 334,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 326,
+                                                                        lineNumber: 332,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 325,
+                                                                    lineNumber: 331,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/buses/page.tsx",
-                                                            lineNumber: 321,
+                                                            lineNumber: 327,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -564,7 +565,7 @@ const Page = ()=>{
                                                                     children: formatDate(bus.arrival_time)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 333,
+                                                                    lineNumber: 339,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -572,7 +573,7 @@ const Page = ()=>{
                                                                     children: formatTime(bus.arrival_time)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 336,
+                                                                    lineNumber: 342,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -581,30 +582,30 @@ const Page = ()=>{
                                                                         children: bus.dropping_points[0].location_name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 341,
+                                                                        lineNumber: 347,
                                                                         columnNumber: 33
                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                         children: "Not available"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/buses/page.tsx",
-                                                                        lineNumber: 343,
+                                                                        lineNumber: 349,
                                                                         columnNumber: 33
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 339,
+                                                                    lineNumber: 345,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/buses/page.tsx",
-                                                            lineNumber: 332,
+                                                            lineNumber: 338,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/buses/page.tsx",
-                                                    lineNumber: 305,
+                                                    lineNumber: 311,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -619,12 +620,12 @@ const Page = ()=>{
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/buses/page.tsx",
-                                                                lineNumber: 351,
+                                                                lineNumber: 357,
                                                                 columnNumber: 31
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/buses/page.tsx",
-                                                            lineNumber: 349,
+                                                            lineNumber: 355,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -638,7 +639,7 @@ const Page = ()=>{
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 357,
+                                                                    lineNumber: 363,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -647,67 +648,67 @@ const Page = ()=>{
                                                                     children: "Select Seat"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/buses/page.tsx",
-                                                                    lineNumber: 361,
+                                                                    lineNumber: 367,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/buses/page.tsx",
-                                                            lineNumber: 356,
+                                                            lineNumber: 362,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/buses/page.tsx",
-                                                    lineNumber: 348,
+                                                    lineNumber: 354,
                                                     columnNumber: 25
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/buses/page.tsx",
-                                            lineNumber: 293,
+                                            lineNumber: 299,
                                             columnNumber: 23
                                         }, this)
                                     }, bus.schedule_id, false, {
                                         fileName: "[project]/app/buses/page.tsx",
-                                        lineNumber: 292,
+                                        lineNumber: 298,
                                         columnNumber: 21
                                     }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     children: "No buses available"
                                 }, void 0, false, {
                                     fileName: "[project]/app/buses/page.tsx",
-                                    lineNumber: 373,
+                                    lineNumber: 379,
                                     columnNumber: 19
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/buses/page.tsx",
-                                lineNumber: 289,
+                                lineNumber: 295,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/buses/page.tsx",
-                            lineNumber: 288,
+                            lineNumber: 294,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/buses/page.tsx",
-                    lineNumber: 214,
+                    lineNumber: 220,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/buses/page.tsx",
-                lineNumber: 213,
+                lineNumber: 219,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/buses/page.tsx",
-            lineNumber: 212,
+            lineNumber: 218,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/buses/page.tsx",
-        lineNumber: 211,
+        lineNumber: 217,
         columnNumber: 5
     }, this);
 };
