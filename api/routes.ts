@@ -41,13 +41,13 @@ redis
 
   router.use(async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-      let sessionID = req.cookies["session-id"];
+      let sessionID = req.cookies["sessionId"];
   
       // ✅ If session ID is missing, create a new one
       if (!sessionID) {
         sessionID = uuidv4();
   
-        res.cookie("session-id", sessionID, {
+        res.cookie("sessionId", sessionID, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production", // ✅ Use secure cookies in production
           sameSite: "none", // ✅ Required for cross-origin requests
@@ -216,7 +216,7 @@ router.post(
   clerkMiddleware(),
   async (req: Request, res: Response) => {
     try {
-      const sessionID = req.cookies?.["session-id"];
+      const sessionID = req.cookies?.["sessionId"];
       if (!sessionID) {
         res.status(400).json({ error: "Session ID missing" });
         return;
@@ -277,7 +277,7 @@ router.get("/ticket", async (req: Request, res: Response) => {
   try {
     // ✅ Apply Clerk Authentication
     requireAuth()(req, res, async () => {
-      const sessionID = req.cookies?.["session-id"];
+      const sessionID = req.cookies?.["sessionId"];
       if (!sessionID) {
         return res.status(400).json({ error: "Session ID missing" });
       }
@@ -321,7 +321,7 @@ router.post("/bookticket", async (req: Request, res: Response) => {
   } = req.body;
   // console.log("Request payload in backend:", req.body);
 
-  const sessionID = req.cookies?.["session-id"];
+  const sessionID = req.cookies?.["sessionId"];
   // console.log("Session ID:", sessionID);
   if (!sessionID) {
     res.status(400).json({ error: "Session ID missing" });
@@ -526,7 +526,7 @@ router.get("/bookedticket", async (req: Request, res: Response) => {
 router.get("/booking-history", async (req: Request, res: Response) => {
   try {
     requireAuth()(req, res, async () => {
-      const sessionID = req.cookies?.["session-id"];
+      const sessionID = req.cookies?.["sessionId"];
       if (!sessionID) {
         return res.status(400).json({ error: "Session ID is missing" });
       }
