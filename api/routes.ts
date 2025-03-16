@@ -39,36 +39,41 @@ redis
   .then((res) => console.log("Redis Connected:", res))
   .catch((err) => console.log("Redis Connection Error:", err));
 
-router.use(async (req: CustomRequest, res: Response, next: NextFunction) => {
-  try {
-    let sessionID = req.cookies["session-id"];
-
-    if (!sessionID) {
-      sessionID = uuidv4();
-      res.cookie("session-id", sessionID, {
-        httpOnly: true,
-        secure: false, // change to true if use HTTPS
-        sameSite: "lax",
-        maxAge: 60 * 60 * 1000,
-      });
-
-      await redis.setex(
-        `session:${sessionID}`,
-        3600,
-        JSON.stringify({ createdAt: Date.now() })
-      );
-      console.log("New session created:");
-    } else {
-      console.log("Existing session found:");
+  router.use(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+      let sessionID = req.cookies["session-id"];
+  
+      // ✅ If session ID is missing, create a new one
+      if (!sessionID) {
+        sessionID = uuidv4();
+  
+        res.cookie("session-id", sessionID, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production", // ✅ Use secure cookies in production
+          sameSite: "none", // ✅ Required for cross-origin requests
+          domain: ".sengarbus.com", // ✅ Shared between frontend & backend
+          path: "/",
+          maxAge: 60 * 60 * 1000, // 1 hour
+        });
+  
+        await redis.setex(
+          `session:${sessionID}`,
+          3600,
+          JSON.stringify({ createdAt: Date.now() })
+        );
+  
+        console.log("New session created:", sessionID);
+      } else {
+        console.log("Existing session found:", sessionID);
+      }
+  
+      req.sessionID = sessionID;
+      next();
+    } catch (error) {
+      console.error("Session middleware error:", error);
+      res.status(500).json({ error: "Session handling failed" });
     }
-
-    req.sessionID = sessionID;
-    next();
-  } catch (error) {
-    console.error("Session middleware error:", error);
-    res.status(500).json({ error: "Session handling failed" });
-  }
-});
+  });
 
 router.get("/session/create", async (req: CustomRequest, res: Response) => {
   try {
