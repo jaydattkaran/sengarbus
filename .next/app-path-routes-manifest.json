@@ -2,11 +2,11 @@
   "/favicon.ico/route": "/favicon.ico",
   "/_not-found/page": "/_not-found",
   "/account/[[...rest]]/page": "/account/[[...rest]]",
-  "/buses/page": "/buses",
-  "/bookings/page": "/bookings",
-  "/payment/page": "/payment",
   "/booking-confirmation/page": "/booking-confirmation",
+  "/bookings/page": "/bookings",
+  "/buses/page": "/buses",
   "/help/page": "/help",
+  "/payment/page": "/payment",
   "/page": "/",
   "/ticket/page": "/ticket"
 }

@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Users } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 
 interface Bus {
   isFullyBooked: string;
@@ -45,6 +45,7 @@ interface Seat {
 
 const Page = () => {
   const { isSignedIn } = useUser();
+  const { getToken } = useAuth();
   const searchParams = useSearchParams();
   // console.log("Query params:", searchParams.toString());
   const router = useRouter();
@@ -85,13 +86,6 @@ const Page = () => {
 
   useEffect(() => {
     if (!source || !destination || !travelDate) return;
-
-    // const formattedDate = format(travelDate, "yyyy-MM-dd");
-    // const query = new URLSearchParams({
-    //   source,
-    //   destination,
-    //   date: formattedDate,
-    // }).toString();
 
     const fetchBuses = async () => {
       try {
@@ -150,35 +144,40 @@ const Page = () => {
   const handleSelectBus = async (bus: Bus) => {
     if (bus.isFullyBooked) {
       alert("This bus is fully booked.");
-      return; // Stop execution, don't proceed
+      return;
     }
-
+  
+    if (!isSignedIn) {
+      alert("Please sign in to continue booking.");
+      return; // Stop execution here if user isn't signed in
+    }
+  
     try {
-      if (!isSignedIn) {
-        alert("Please sign in to continue booking.");
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const token = await getToken(); // ✅ Ensure token is retrieved properly
+  
+      if (!token) {
+        alert("Authentication error: Could not retrieve token.");
         return;
       }
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  
       const response = await fetch(`${API_URL}/api/buses/select`, {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${token}`, // ✅ Correct usage of token
           "Content-Type": "application/json",
         },
         credentials: "include",
         body: JSON.stringify({ bus }),
       });
-
+  
       const data = await response.json();
       console.log("API Response:", response.status, data);
-
+  
       if (!response.ok) {
-        alert(
-          `Bus not selected. Server response: ${
-            data.message || "Unknown error"
-          }`
-        );
+        alert(`Bus not selected. Server response: ${data.message || "Unknown error"}`);
       } else {
-        console.log("bus details for booking", data);
+        console.log("Bus details for booking", data);
         router.push(`/ticket?busId=${bus.bus_id}&routeId=${bus.route_id}`);
       }
     } catch (error) {
@@ -186,6 +185,7 @@ const Page = () => {
       alert("An error occurred. Please try again.");
     }
   };
+  
 
   // const handleUpdateSearch = async () => {
   //   if (!source || !destination || !travelDate) return;

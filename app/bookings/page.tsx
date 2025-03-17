@@ -1,5 +1,5 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import React, { useEffect, useState } from "react";
 
 // Define TypeScript interfaces for API response
@@ -23,6 +23,7 @@ interface Booking {
 
 const Page = () => {
   const { isSignedIn } = useUser();
+  const { getToken } = useAuth();
   const [bookingHistory, setBookingHistory] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState("");
@@ -32,13 +33,15 @@ const Page = () => {
       const fetchBookingHistory = async () => {
         try {
           const API_URL = process.env.NEXT_PUBLIC_API_URL;
-          const response = await fetch(
-            `${API_URL}/api/booking-history`,
-            {
-              method: "GET",
-              credentials: "include",
-            }
-          );
+          const token = await getToken();
+          const response = await fetch(`${API_URL}/api/booking-history`, {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              Authorization: `Bearer ${token}`, // ✅ Now Clerk will recognize the user
+              "Content-Type": "application/json",
+            },
+          });
 
           const data = await response.json();
           console.log("API Response:", data); // Debugging: Print the entire response

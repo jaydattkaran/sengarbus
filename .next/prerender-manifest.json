@@ -30,7 +30,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/payment": {
+    "/buses": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -43,32 +43,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/payment",
-      "dataRoute": "/payment.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/ticket": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/ticket",
-      "dataRoute": "/ticket.rsc",
+      "srcRoute": "/buses",
+      "dataRoute": "/buses.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -102,7 +78,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/bookings": {
+    "/payment": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -115,8 +91,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/bookings",
-      "dataRoute": "/bookings.rsc",
+      "srcRoute": "/payment",
+      "dataRoute": "/payment.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -150,7 +126,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/buses": {
+    "/ticket": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -163,8 +139,32 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/buses",
-      "dataRoute": "/buses.rsc",
+      "srcRoute": "/ticket",
+      "dataRoute": "/ticket.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/bookings": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/bookings",
+      "dataRoute": "/bookings.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -202,8 +202,8 @@
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "9af838a48960b770184217d473f2c51e",
-    "previewModeSigningKey": "4e21be7eef9bbee5ea5f0843cdbd6515cc7f5f40bb951ca54bc98bf509fbbb96",
-    "previewModeEncryptionKey": "3870742235f4e82e2e120c75e2da31e993656e37ff6dda4629c2dc550a371e7f"
+    "previewModeId": "961d7cdc667d67f6154bbea8f03c944d",
+    "previewModeSigningKey": "f5a197da8d041c4f5fe24e50e2a7616058e06de7fa0283960f6667c271b0f78a",
+    "previewModeEncryptionKey": "5671610d93fc1369d509eb63c8549510814a7a17954d0f2612a76f9ed6250968"
   }
 }

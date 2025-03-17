@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useUser, SignInButton } from "@clerk/nextjs";
+import { useUser, SignInButton, useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
@@ -35,6 +35,7 @@ interface Stop {
 
 const Page = () => {
   const { isSignedIn } = useUser();
+  const { getToken } = useAuth();
   const router = useRouter();
   const [busDetails, setBusDetails] = useState<Bus | null>(null);
 
@@ -56,9 +57,14 @@ const Page = () => {
       const fetchBusDetails = async () => {
         try {
           const API_URL = process.env.NEXT_PUBLIC_API_URL;
+          const token = await getToken();
           const response = await fetch(`${API_URL}/api/ticket`, {
             method: "GET",
             credentials: "include",
+            headers: {
+              Authorization: `Bearer ${token}`, // ✅ Now Clerk will recognize the user
+              "Content-Type": "application/json",
+            },
           });
 
           const data = await response.json();
