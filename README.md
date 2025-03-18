@@ -120,10 +120,10 @@ sengarbus/
 │   ├── public/             # Static files like images, icons
 │   └── styles/             # Global styles
 │
-├── backend/                # Node.js backend
+├── server/                # Node.js backend
 │   ├── routes/             # API routes
-│   ├── controllers/        # Controllers for handling requests
-│   └── models/             # Database models
+│   ├── server.ts/        # Controllers for handling requests
+│   └── db/             # Database models
 │
 └── README.md               # Project documentation
 ```
