@@ -7,6 +7,7 @@ pnpm-lock.yaml
 # TypeScript build output
 dist/
 out/
+.next/
 *.tsbuildinfo
 
 # Logs and temporary files
@@ -33,6 +34,9 @@ debug.log
 *.swo
 Thumbs.db
 
+.vercelignore
+next-env.d.ts
+.vercel/
 
 data.txt
 cookies.txt

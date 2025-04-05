@@ -44,7 +44,7 @@ const Page = () => {
           });
 
           const data = await response.json();
-          console.log("API Response:", data); // Debugging: Print the entire response
+          // console.log("API Response:", data); // Debugging: Print the entire response
 
           setUsername(data.firstName);
           setBookingHistory(data.bookingHistory || []);
@@ -83,7 +83,7 @@ const Page = () => {
                   Booking ID: {booking.bookingId}
                 </h2>
                 <div className="flex flex-col md:flex-row md:gap-4">
-                  <p className="text-sm md:text-lg text-gray-300">
+                  <p className="text-sm md:text-lg">
                     Status:{" "}
                     <span
                       className={
@@ -97,22 +97,22 @@ const Page = () => {
                         : "Pending Payment"}
                     </span>
                   </p>
-                  <p className="text-sm md:text-lg text-gray-300">
+                  <p className="text-sm md:text-lg">
                     Travel Date: {booking.travelDate}
                   </p>
-                  <p className="text-sm md:text-lg text-gray-300">
+                  <p className="text-sm md:text-lg">
                     Route: {booking.routeDetails.startLocation} →{" "}
                     {booking.routeDetails.endLocation}
                   </p>
-                  <p className="text-sm md:text-lg text-gray-300">
+                  <p className="text-sm md:text-lg">
                     Bus: {booking.busDetails.name} ({booking.busDetails.type})
                   </p>
-                  <p className="text-sm md:text-lg text-gray-300">
+                  <p className="text-sm md:text-lg">
                     Seats:{" "}
                     {booking.seatDetails.map((seat, index) => (
                       <span key={index} className="mr-2">
                         {seat.seatNumber}{" "}
-                        <span className="text-neutral-400">
+                        <span className="text-neutral-500 dark:text-neutral-400">
                           ({seat.seatType})
                         </span>
                         {index !== booking.seatDetails.length - 1 && ", "}{" "}

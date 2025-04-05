@@ -4,8 +4,9 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from '@clerk/themes'
-import { Analytics } from "@vercel/analytics/react"
+import { dark } from "@clerk/themes";
+import { Analytics } from "@vercel/analytics/react";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,24 +29,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ClerkProvider
-        appearance={{
-          baseTheme: dark,
-        }}
-        >
-          <main className="flex flex-col justify-between items-center">
-            <Navbar />
-            <div className="flex flex-col justify-center lg:max-w-[60vw] max-w-[90vw] items-center">
-              {children}
-            </div>
-            <Footer />
-          </main>
+        <ClerkProvider appearance={{ baseTheme: dark }}>
+          {/* Ensure ThemeProvider is controlling the HTML class attribute */}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <main className="flex flex-col justify-between items-center">
+              <Navbar />
+              <div className="flex flex-col justify-center lg:max-w-[60vw] max-w-[90vw] items-center">
+                {children}
+              </div>
+              <Footer />
+            </main>
+          </ThemeProvider>
         </ClerkProvider>
-        <Analytics/>
+        <Analytics />
       </body>
     </html>
   );

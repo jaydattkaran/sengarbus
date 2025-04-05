@@ -51,6 +51,7 @@ const Page = () => {
     gender: "",
   });
   const serviceCharge: number = 20;
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (isSignedIn) {
@@ -68,7 +69,7 @@ const Page = () => {
           });
 
           const data = await response.json();
-          console.log("bus data from backend:", data);
+          //  console.log("bus data from backend:", data);
 
           if (data.userData) {
             setFormData({
@@ -84,7 +85,7 @@ const Page = () => {
           if (response.ok) {
             setBusDetails(data.bus);
           } else {
-            console.log("Failed to fetch bus details:", data);
+            console.log("Failed to fetch bus details.");
           }
         } catch (error) {
           console.error("Error fetching bus details:", error);
@@ -113,7 +114,7 @@ const Page = () => {
     scheduleId: string
   ) => {
     e.preventDefault();
-    console.log("🚀 Schedule ID received in function:", scheduleId);
+    // console.log("🚀 Schedule ID received in function:", scheduleId);
 
     if (
       !selectedGender ||
@@ -130,7 +131,7 @@ const Page = () => {
       alert("Check the details correctly");
       return;
     }
-
+    setIsProcessing(true);
     try {
       const totalAmount =
         selectedSeats.reduce((sum, seat) => sum + seat.price, 0) +
@@ -162,7 +163,7 @@ const Page = () => {
       });
 
       const bookingData = await response.json();
-      console.log("booking data:", bookingData);
+      // console.log("booking data:", bookingData);
 
       if (!response.ok || !bookingData?.booking_id) {
         throw new Error(
@@ -175,6 +176,8 @@ const Page = () => {
     } catch (error) {
       console.log("Error initiating payment:", error);
       alert("Payment failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -541,11 +544,42 @@ const Page = () => {
                   onClick={(e) =>
                     handlePaymentAndBooking(e, busDetails.schedule_id)
                   }
+                  disabled={isProcessing}
                   className="w-full text-xl bg-[#FF6F00] hover:bg-[#FF6F00] text-white cursor-pointer font-semibold h-12 mt-4"
                 >
-                  Continue to Payment ₹{" "}
-                  {selectedSeats.reduce((sum, seat) => sum + seat.price, 0) +
-                    serviceCharge}
+                  {isProcessing ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Continue to Payment ₹{" "}
+                      {selectedSeats.reduce(
+                        (sum, seat) => sum + seat.price,
+                        0
+                      ) + serviceCharge}
+                    </>
+                  )}
                 </Button>
               </div>
             </section>

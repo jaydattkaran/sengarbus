@@ -62,7 +62,7 @@ const TicketPage = () => {
 
   useEffect(() => {
     if (booking && booking?.payment_status === "success") {
-      let timeLeft = 120;
+      let timeLeft = 100000;
       setCountdown(timeLeft);
 
       const timerInterval = setInterval(() => {
@@ -96,7 +96,7 @@ const TicketPage = () => {
       }
 
       const data = await response.json();
-      console.log("booked tickets:", data);
+      // console.log("booked tickets:", data);
 
       if (!data.booked_at) {
         console.error("⚠️ booked_at is missing from API response!");
@@ -387,16 +387,16 @@ const TicketPage = () => {
   };
 
   const formatDateTime = (dateString: string | null | undefined) => {
-    console.log("Received dateString:", dateString); // ✅ Debugging log
-  
+    // console.log("Received dateString:", dateString); // ✅ Debugging log
+
     if (!dateString) return "N/A"; // Handle missing values
-  
+
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
       console.error("Invalid date:", dateString);
       return "Invalid Date";
     }
-  
+
     return new Intl.DateTimeFormat("en-IN", {
       day: "2-digit",
       month: "short",
@@ -407,7 +407,7 @@ const TicketPage = () => {
       timeZone: "Asia/Kolkata", // ✅ Convert to IST
     }).format(date);
   };
-  
+
   if (!booking) {
     return (
       <div className="flex justify-center items-center h-screen bg-gray-50">
@@ -423,9 +423,12 @@ const TicketPage = () => {
     <div className="min-h-screen py-4 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
       <div>
         {booking.payment_status === "success" && countdown !== null && (
-          <p className="text-lg mb-4 text-neutral-300">
-            Redirecting to homepage in {countdown} seconds...
-          </p>
+          <div>
+            <p className="text-center text-lg font-semibold">Your ticket is successfully booked!</p>
+            <p className="text-sm mb-4 text-neutral-400">
+              Redirecting to homepage in {countdown} seconds...
+            </p>
+          </div>
         )}
       </div>
       <div className="w-full max-w-2xl mx-auto mb-8">

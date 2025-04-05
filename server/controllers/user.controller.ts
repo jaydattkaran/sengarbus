@@ -1,14 +1,7 @@
-import { Router, Request, Response, NextFunction } from "express";
-import pool from "./db";
+import { Request, Response } from "express";
+import pool from "../config/db";
 import Redis from "ioredis";
-import { v4 as uuidv4 } from "uuid";
-import {
-  clerkMiddleware,
-  requireAuth,
-  getAuth,
-  clerkClient,
-} from "@clerk/express";
-
+import { requireAuth, getAuth, clerkClient } from "@clerk/express";
 
 interface CustomRequest extends Request {
   sessionID?: string;
@@ -20,77 +13,43 @@ interface Stop {
   time: string;
 }
 
-const router = Router();
+const redis = new Redis();
 // Ensure REDIS_URL is defined before using it
-if (!process.env.REDIS_URL) {
-  throw new Error("REDIS_URL is not set in environment variables");
-}
+// if (!process.env.REDIS_URL) {
+//   throw new Error("REDIS_URL is not set in environment variables");
+// }
 
-const redis = new Redis(process.env.REDIS_URL, {
-  tls: process.env.REDIS_URL.startsWith("rediss://") ? {} : undefined, // Only use TLS for secure connections
-});
-if (!process.env.CLERK_SECRET_KEY) {
-  console.error("Missing CLERK_SECRET_KEY environment variable");
-  process.exit(1);
-}
+// const redis = new Redis(process.env.REDIS_URL, {
+//   tls: process.env.REDIS_URL.startsWith("rediss://") ? {} : undefined, // Only use TLS for secure connections
+// });
+// if (!process.env.CLERK_SECRET_KEY) {
+//   console.error("Missing CLERK_SECRET_KEY environment variable");
+//   process.exit(1);
+// }
 
 redis
   .ping()
   .then((res) => console.log("Redis Connected:", res))
   .catch((err) => console.log("Redis Connection Error:", err));
 
-  router.use(async (req: CustomRequest, res: Response, next: NextFunction) => {
-    try {
-      let sessionID = req.cookies["sessionId"];
-  
-      // ✅ If session ID is missing, create a new one
-      if (!sessionID) {
-        sessionID = uuidv4();
-  
-        res.cookie("sessionId", sessionID, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production", 
-          sameSite: "none", 
-          path: "/",
-          maxAge: 60 * 60 * 1000, // 1 hour
-        });
-  
-        await redis.setex(
-          `session:${sessionID}`,
-          3600,
-          JSON.stringify({ createdAt: Date.now() })
-        );
-  
-        console.log("New session created:", sessionID);
-      } else {
-        console.log("Existing session found:", sessionID);
-      }
-  
-      req.sessionID = sessionID;
-      next();
-    } catch (error) {
-      console.error("Session middleware error:", error);
-      res.status(500).json({ error: "Session handling failed" });
-    }
-  });
-
-router.get("/session/create", async (req: CustomRequest, res: Response) => {
+export const sessionCreate = async (req: CustomRequest, res: Response) => {
   try {
     res.json({ sessionID: req.sessionID });
   } catch (error) {
     console.error("Error sending response:", error);
     res.status(500).json({ error: "Failed to send response" });
   }
-});
-router.get("/", (req: CustomRequest, res: Response) => {
+};
+
+export const getSession = async (req: CustomRequest, res: Response) => {
   console.log("Session ID in request:", req.sessionID);
   res.send({ message: "Session Test", sessionID: req.sessionID });
-});
+};
 
-router.post("/search-buses", async (req: Request, res: Response) => {
+export const searchBuses = async (req: CustomRequest, res: Response) => {
   try {
     // console.log("Received headers:", req.headers);
-    console.log("Received data:", req.body);
+    // console.log("Received data:", req.body);
     const { source, destination, travelDate } = req.body;
     const formattedDate = new Date(travelDate).toISOString().split("T")[0];
 
@@ -112,27 +71,27 @@ router.post("/search-buses", async (req: Request, res: Response) => {
     const routeId = routeResult.rows[0].route_id;
 
     const scheduleQuery = `
-      SELECT 
-          schedules.schedule_id, 
-          schedules.departure_time, 
-          schedules.arrival_time, 
-          buses.bus_id, 
-          buses.name AS bus_name, 
-          buses.type AS bus_type, 
-          buses.capacity, 
-          routes.route_id, 
-          routes.source, 
-          routes.destination, 
-          routes.distance_km 
-      FROM schedules
-      INNER JOIN buses ON schedules.bus_id = buses.bus_id
-      INNER JOIN routes ON schedules.route_id = routes.route_id
-      WHERE schedules.route_id = $1 AND DATE(schedules.departure_time) = $2;
-    `;
+          SELECT 
+              schedules.schedule_id, 
+              schedules.departure_time, 
+              schedules.arrival_time, 
+              buses.bus_id, 
+              buses.bus_name AS bus_name, 
+              buses.bus_type AS bus_type, 
+              buses.total_seats, 
+              routes.route_id, 
+              routes.source, 
+              routes.destination, 
+              routes.distance_km 
+          FROM schedules
+          INNER JOIN buses ON schedules.bus_id = buses.bus_id
+          INNER JOIN routes ON schedules.route_id = routes.route_id
+          WHERE schedules.route_id = $1 AND DATE(schedules.travel_date) = $2;
+        `;
 
-    console.log("Executing query with:", routeId, formattedDate);
+    // console.log("Executing query with:", routeId, formattedDate);
     const schedules = await pool.query(scheduleQuery, [routeId, formattedDate]);
-    console.log("Executed query with provided data:");
+    // console.log("Executed query with provided data:");
 
     if (schedules.rows.length === 0) {
       res.status(404).json({ message: "No buses available for this date" });
@@ -141,21 +100,21 @@ router.post("/search-buses", async (req: Request, res: Response) => {
 
     for (let schedule of schedules.rows) {
       const seatQuery = `
-      SELECT seat_no, seat_type, status, price 
-      FROM seats 
-      WHERE schedule_id = $1 ORDER BY seat_no;
-    `;
+          SELECT seat_no, seat_type, status, price 
+          FROM seats 
+          WHERE schedule_id = $1 ORDER BY seat_no;
+        `;
       const seatsResult = await pool.query(seatQuery, [schedule.schedule_id]);
 
       schedule.available_seats = seatsResult.rows;
 
       // Fetch boarding & dropping points
       const stopsQuery = `
-     SELECT stop_type, location_name, time 
-     FROM stops 
-     WHERE schedule_id = $1 
-     ORDER BY time ASC;
-   `;
+         SELECT stop_type, location_name, time 
+         FROM stops 
+         WHERE schedule_id = $1 
+         ORDER BY time ASC;
+       `;
       const stopsResult = await pool.query(stopsQuery, [schedule.schedule_id]);
 
       // Separate boarding and dropping points
@@ -175,104 +134,67 @@ router.post("/search-buses", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server error" });
     return;
   }
-});
+};
 
-router.get(
-  "/auth/check",
-  clerkMiddleware(),
-  async (req: Request, res: Response) => {
-    try {
-      const authData = getAuth(req);
-      const userId = authData?.userId ?? null;
-
-      if (!userId) {
-        res.status(401).json({
-          authenticated: false,
-          message: "User not authenticated",
-        });
-        return; // Make sure to return after sending response
-      }
-
-      // User is authenticated
-      res.status(200).json({
-        authenticated: true,
-        userId: userId,
-      });
-      return; // Make sure to return after sending response
-    } catch (error) {
-      console.log("Authentication check error:", error);
-      res.status(500).json({
-        authenticated: false,
-        message: "Authentication check failed",
-      });
-      return; // Make sure to return after sending response
+export const selectBus = async (req: CustomRequest, res: Response) => {
+  try {
+    const sessionID = req.cookies?.["sessionId"];
+    if (!sessionID) {
+      res.status(400).json({ error: "Session ID missing" });
+      return;
     }
-  }
-);
+    const { bus } = req.body;
+    // console.log("data recieved:", bus)
 
-router.post(
-  "/buses/select",
-  clerkMiddleware(),
-  async (req: Request, res: Response) => {
-    try {
-      const sessionID = req.cookies?.["sessionId"];
-      if (!sessionID) {
-        res.status(400).json({ error: "Session ID missing" });
-        return;
-      }
-      const { bus } = req.body;
-      // console.log("data recieved:", bus)
+    const authData = getAuth(req);
+    const userId = authData?.userId ?? null;
 
-      const authData = getAuth(req);
-      const userId = authData?.userId ?? null;
-
-      if (!userId) {
-        res.status(401).json({ error: "Unauthorized" });
-        return;
-      }
-
-      const clerkUser = await clerkClient.users.getUser(userId);
-      const { firstName, lastName, emailAddresses, phoneNumbers } = clerkUser;
-
-      const email = emailAddresses?.[0]?.emailAddress ?? null;
-      const phone = phoneNumbers?.[0]?.phoneNumber ?? null;
-
-      const userExists = await pool.query(
-        "SELECT clerkId FROM users WHERE clerkId = $1",
-        [userId]
-      );
-      if (userExists.rows.length === 0) {
-        await pool.query(
-          "INSERT INTO users (clerkId, firstname, lastname, email, phone) VALUES ($1, $2, $3, $4, $5)",
-          [userId, firstName, lastName, email, phone]
-        );
-      } else {
-        const user = userExists.rows[0];
-
-        await pool.query(
-          `UPDATE users 
-           SET firstname = COALESCE(NULLIF($2, ''), firstname),
-               lastname = COALESCE(NULLIF($3, ''), lastname),
-               email = COALESCE(NULLIF($4, ''), email),
-               phone = COALESCE(NULLIF($5, ''), phone)
-           WHERE clerkId = $1`,
-          [userId, firstName, lastName, email, phone]
-        );
-      }
-
-      await redis.set(`session:${sessionID}:selectedBus`, JSON.stringify(bus));
-      await redis.set(`session:${sessionID}:userId`, userId);
-      const fullData = { bus, userId };
-
-      res.json(fullData);
-    } catch (error) {
-      console.log("Authentication Error:", error);
+    if (!userId) {
       res.status(401).json({ error: "Unauthorized" });
+      return;
     }
-  }
-);
 
-router.get("/ticket", async (req: Request, res: Response) => {
+    const clerkUser = await clerkClient.users.getUser(userId);
+    const { firstName, lastName, emailAddresses, phoneNumbers } = clerkUser;
+
+    const email = emailAddresses?.[0]?.emailAddress ?? null;
+    const phone = phoneNumbers?.[0]?.phoneNumber ?? null;
+
+    const userExists = await pool.query(
+      "SELECT clerkId FROM users WHERE clerkId = $1",
+      [userId]
+    );
+    if (userExists.rows.length === 0) {
+      await pool.query(
+        "INSERT INTO users (clerkId, firstname, lastname, email, phone) VALUES ($1, $2, $3, $4, $5)",
+        [userId, firstName, lastName, email, phone]
+      );
+    } else {
+      const user = userExists.rows[0];
+
+      await pool.query(
+        `UPDATE users 
+             SET firstname = COALESCE(NULLIF($2, ''), firstname),
+                 lastname = COALESCE(NULLIF($3, ''), lastname),
+                 email = COALESCE(NULLIF($4, ''), email),
+                 phone = COALESCE(NULLIF($5, ''), phone)
+             WHERE clerkId = $1`,
+        [userId, firstName, lastName, email, phone]
+      );
+    }
+
+    await redis.set(`session:${sessionID}:selectedBus`, JSON.stringify(bus));
+    await redis.set(`session:${sessionID}:userId`, userId);
+    const fullData = { bus, userId };
+
+    res.json(fullData);
+  } catch (error) {
+    console.log("Authentication Error:", error);
+    res.status(401).json({ error: "Unauthorized" });
+  }
+};
+
+export const getBookingDetails = async (req: CustomRequest, res: Response) => {
   try {
     // ✅ Apply Clerk Authentication
     requireAuth()(req, res, async () => {
@@ -304,9 +226,10 @@ router.get("/ticket", async (req: Request, res: Response) => {
     console.error("Authentication Error:", error);
     res.status(401).json({ error: "Unauthorized" });
   }
-});
+};
 
-router.post("/bookticket", async (req: Request, res: Response) => {
+
+export const bookTicket = async (req: CustomRequest, res: Response) => {
   const {
     seat_id,
     firstname,
@@ -402,8 +325,8 @@ router.post("/bookticket", async (req: Request, res: Response) => {
     // console.log("Seat Numbers Processed:", seatNumbers);
 
     const bookingResult = await pool.query(
-      `INSERT INTO bookings (user_id, seat_id, schedule_id, amount, payment_status) 
-       VALUES ($1, $2, $3, $4, 'success') RETURNING *`,
+      `INSERT INTO bookings (user_id, seat_id, schedule_id, amount, payment_status, status) 
+           VALUES ($1, $2, $3, $4, 'success', 'active') RETURNING *`,
       [user_id, seatNumbers, schedule_id, amount]
     );
     // console.log(
@@ -429,7 +352,7 @@ router.post("/bookticket", async (req: Request, res: Response) => {
       // console.log("Transaction committed successfully.");
     } catch (error) {
       await pool.query("ROLLBACK"); // Rollback on failure
-      // console.error("Transaction failed, rolled back:", error);
+      console.error("Transaction failed, rolled back:", error);
       throw error; // Ensure error is sent to frontend
     }
 
@@ -451,15 +374,15 @@ router.post("/bookticket", async (req: Request, res: Response) => {
     console.error("Payment Failiure:", error);
     res.status(401).json({ error: error.message });
   }
-});
+};
 
-router.get("/bookedticket", async (req: Request, res: Response) => {
+export const getBookedTicket = async (req: CustomRequest, res: Response) => {
   try {
     const { booking_id } = req.query;
 
     const bookingResults = await pool.query(
       `SELECT booking_id, user_id, schedule_id, amount, payment_status, created_at, seat_id 
-       FROM bookings WHERE booking_id = $1`,
+           FROM bookings WHERE booking_id = $1`,
       [booking_id]
     );
 
@@ -520,9 +443,9 @@ router.get("/bookedticket", async (req: Request, res: Response) => {
     console.error("Error retrieving booking details:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-});
+};
 
-router.get("/booking-history", async (req: Request, res: Response) => {
+export const getBookingHistory = async (req: CustomRequest, res: Response) => {
   try {
     requireAuth()(req, res, async () => {
       const sessionID = req.cookies?.["sessionId"];
@@ -556,20 +479,20 @@ router.get("/booking-history", async (req: Request, res: Response) => {
       // Fetch booking history
       const bookingHistoryResults = await pool.query(
         `SELECT 
-          b.booking_id, b.user_id, b.schedule_id, b.payment_status,
-          TO_CHAR(s.travel_date::TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') AS travel_date,
-          s.bus_id, s.route_id,
-          bu.name AS bus_name, bu.type AS bus_type,
-          r.source AS start_location, r.destination AS end_location,
-          se.seat_no, se.seat_type
-        FROM bookings b
-        JOIN schedules s ON b.schedule_id = s.schedule_id
-        JOIN buses bu ON s.bus_id = bu.bus_id
-        JOIN routes r ON s.route_id = r.route_id
-        JOIN LATERAL (SELECT unnest(string_to_array(b.seat_id, ',')::int[])) AS seat_id ON TRUE
-        JOIN seats se ON seat_id.unnest = se.seat_id
-        WHERE b.user_id = $1;
-        `,
+              b.booking_id, b.user_id, b.schedule_id, b.payment_status,
+              TO_CHAR(s.travel_date::TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') AS travel_date,
+              s.bus_id, s.route_id,
+              bu.bus_name AS bus_name, bu.bus_type AS bus_type,
+              r.source AS start_location, r.destination AS end_location,
+              se.seat_no, se.seat_type
+            FROM bookings b
+            JOIN schedules s ON b.schedule_id = s.schedule_id
+            JOIN buses bu ON s.bus_id = bu.bus_id
+            JOIN routes r ON s.route_id = r.route_id
+            JOIN LATERAL (SELECT unnest(string_to_array(b.seat_id, ',')::int[])) AS seat_id ON TRUE
+            JOIN seats se ON seat_id.unnest = se.seat_id
+            WHERE b.user_id = $1;
+            `,
         [user_id]
       );
 
@@ -625,6 +548,4 @@ router.get("/booking-history", async (req: Request, res: Response) => {
     console.error("Error fetching booking history", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-});
-
-export default router;
+};

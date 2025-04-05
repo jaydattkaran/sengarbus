@@ -79,7 +79,7 @@ export default function Home() {
         <div className="text-2xl font-semibold pb-8 md:px-0">
           Book your bus now...
         </div>
-        <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+        <div className="">
           <div className="flex flex-col gap-4">
             <div>
               <div className="mb-2 text-lg">From</div>
@@ -116,14 +116,6 @@ export default function Home() {
               </Button>
             </Link>
           </div>
-          <div className="flex flex-col gap-2 md:border-l py-2 px-4 md:mt-0 mt-4">
-            <div className="h-[10rem] border rounded-xl"></div>
-            <div className="px-2 pt-2 text-xl uppercase">Trending Offers</div>
-            <div className="px-2 flex  gap-4">
-              <div className="h-[7rem] w-[12rem] border rounded-lg"></div>
-              <div className="h-[7rem] w-[12rem] border rounded-lg"></div>
-            </div>
-          </div>
         </div>
       </section>
       
@@ -157,7 +149,7 @@ export default function Home() {
               key={category.id}
               className={`cursor-pointer text-sm font-semibold transition-all md:px-3 px-2 py-1 rounded-sm ${
                 selectedCategory === category.id
-                  ? "bg-neutral-800"
+                  ? "dark:bg-neutral-800 bg-neutral-200"
                   : "text-neutral-500 hover:text-neutral-700"
               }`}
               onClick={() => setSelectedCategory(category.id)}

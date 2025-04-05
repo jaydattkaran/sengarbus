@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Users } from "lucide-react";
 import { useAuth, useUser } from "@clerk/nextjs";
+import RootLayout from "../loading";
 
 interface Bus {
   isFullyBooked: string;
@@ -54,6 +55,7 @@ const Page = () => {
   const [destination] = useState(searchParams.get("destination") || "");
   const [buses, setBuses] = useState<Bus[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // const initialDateString = searchParams.get("date");
   // console.log("Initial date string:", initialDateString);
@@ -109,7 +111,7 @@ const Page = () => {
         if (!response.ok) throw new Error("Failed to fetch buses");
 
         const data = await response.json(); //function example<T>(data: T) { }
-        console.log("Available buses:", data);
+        // console.log("Available buses:", data);
 
         const busesWithSeatCount =
           data.buses?.map((bus: Bus) => {
@@ -130,7 +132,7 @@ const Page = () => {
 
         setBuses(busesWithSeatCount);
       } catch (error) {
-        console.log("Error fetching buses:", error);
+        console.error("Error fetching buses:", error);
       } finally {
         setLoading(false);
       }
@@ -139,28 +141,34 @@ const Page = () => {
     fetchBuses();
   }, [source, destination, travelDate]);
 
-  if (loading) return <p>Loading buses...</p>;
+  if (loading)
+    return (
+      <div>
+        <RootLayout children={undefined} />
+      </div>
+    );
 
   const handleSelectBus = async (bus: Bus) => {
     if (bus.isFullyBooked) {
       alert("This bus is fully booked.");
       return;
     }
-  
+
     if (!isSignedIn) {
       alert("Please sign in to continue booking.");
       return; // Stop execution here if user isn't signed in
     }
-  
+    setIsProcessing(true);
+
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
       const token = await getToken(); // ✅ Ensure token is retrieved properly
-  
+
       if (!token) {
         alert("Authentication error: Could not retrieve token.");
         return;
       }
-  
+
       const response = await fetch(`${API_URL}/api/buses/select`, {
         method: "POST",
         headers: {
@@ -170,22 +178,27 @@ const Page = () => {
         credentials: "include",
         body: JSON.stringify({ bus }),
       });
-  
+
       const data = await response.json();
-      console.log("API Response:", response.status, data);
-  
+      // console.log("API Response:", response.status, data);
+
       if (!response.ok) {
-        alert(`Bus not selected. Server response: ${data.message || "Unknown error"}`);
+        alert(
+          `Bus not selected. Server response: ${
+            data.message || "Unknown error"
+          }`
+        );
       } else {
-        console.log("Bus details for booking", data);
+        // console.log("Bus details for booking", data);
         router.push(`/ticket?busId=${bus.bus_id}&routeId=${bus.route_id}`);
       }
     } catch (error) {
       console.log("Error selecting bus:", error);
       alert("An error occurred. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
-  
 
   // const handleUpdateSearch = async () => {
   //   if (!source || !destination || !travelDate) return;
@@ -219,7 +232,7 @@ const Page = () => {
         <div className="p-2">
           <section className="py-4 md:mx-4">
             <div>
-              <h1 className="text-xl px-2">
+              <h1 className="md:text-xl text-lg px-2">
                 Buses from {source} to {destination} on{" "}
                 {formattedBuses[0]?.formattedDeparture}
               </h1>
@@ -253,7 +266,7 @@ const Page = () => {
                                 </div>
                               </div>
                               <div className="flex flex-col items-center justify-center">
-                                <div className="text-neutral-300">
+                                <div className="text-neutral-400">
                                   - {bus.distance_km} km -
                                 </div>
                               </div>
@@ -325,7 +338,7 @@ const Page = () => {
                             </div>
                           </div>
                           <div className="flex flex-col items-center pr-4">
-                            <div className="text-neutral-300">
+                            <div className="text-neutral-400">
                               {bus.distance_km} km
                             </div>
                             <div className="relative flex items-center">
@@ -366,9 +379,36 @@ const Page = () => {
 
                             <Button
                               onClick={() => handleSelectBus(bus)}
+                              disabled={isProcessing}
                               className="uppercase cursor-pointer text-lg w-[11rem] text-white font-semibold bg-[#FF6F00] hover:bg-[#FF6F00]"
                             >
-                              Select Seat
+                              {isProcessing ? (
+                                <>
+                                  <svg
+                                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                  </svg>
+                                  Processing...
+                                </>
+                              ) : (
+                                <>Select Seat</>
+                              )}
                             </Button>
                           </div>
                         </div>
