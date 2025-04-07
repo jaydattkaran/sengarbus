@@ -1,7 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import router from "./routes";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./routes/admin.routes";
 import busRoutes from "./routes/bus.routes";
@@ -29,7 +28,7 @@ app.use(
 );
 
 app.use("/api", userRoutes);
-app.use("/api/user", router);
+// app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/buses", busRoutes);
 app.use("/api/routes", routeRoutes);
